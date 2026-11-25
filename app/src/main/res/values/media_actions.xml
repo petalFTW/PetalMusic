@@ -1,0 +1,6 @@
+<resources>
+    <string name="media_shuffle_on">Turn shuffle on</string>
+    <string name="media_shuffle_off">Turn shuffle off</string>
+    <string name="media_add_favorite">Add to favourites</string>
+    <string name="media_remove_favorite">Remove from favourites</string>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Music</string>
+    <string name="automix">AutoMix</string>
+    <string name="queue">Queue</string>
+    <string name="library">Library</string>
+    <string name="search">Search</string>
+    <string name="home">Home</string>
+    <string name="settings">Settings</string>
+    <string name="now_playing">Now playing</string>
+    <string name="accounts">Accounts</string>
+    <string name="style_clean">Clean</string>
+    <string name="style_reverb">Reverb</string>
+    <string name="style_stutter">Stutter</string>
+    <string name="style_adaptive">Adaptive</string>
+    <string name="bridgefx_active">BridgeFX system effect attached</string>
+    <string name="bridgefx_absent">BridgeFX not found — using internal AutoMix engine</string>
+</resources>

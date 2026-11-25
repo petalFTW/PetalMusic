@@ -1,0 +1,50 @@
+{
+  "version": "apollo-spectral-v2-blocks",
+  "source_sha256": "0ea8a886b006b36bc74aba33c657c7ba2d09be8cd9e1cbce90e0a35d55aaf265",
+  "files": {
+    "frontend.onnx": {
+      "bytes": 6999,
+      "sha256": "e88496c6518f6316a5d45d2c2994f7fed33fed49d651120cf27f4c291eb60db5"
+    },
+    "core.onnx": {
+      "bytes": 71173869,
+      "sha256": "25c92dd37339ce83bd503c4ae15ddf3014cf04fc047b2f514076abba48546d6e"
+    },
+    "backend.onnx": {
+      "bytes": 6431902,
+      "sha256": "b6fc377d5d283c0bbaac820132d99d2d45f2cde7c39419ef9155dd22ab55fc5c"
+    },
+    "encoder.onnx": {
+      "bytes": 3065627,
+      "sha256": "a67f1530f1c9591e4ea020cbb24d6303bb2d0e0f9735343054e5830555e2812b"
+    },
+    "decoder.onnx": {
+      "bytes": 3461300,
+      "sha256": "4b1f69f26feba9abaeaddff64e2ef4438700df469443a053440d5a0cb0c39906"
+    },
+    "block-0-fp16.onnx": {
+      "bytes": 5491347,
+      "sha256": "cb2efc63cd81aee2bb0130d6e1a3574b1b8af8eb7a4323e8219d17a929bf5966"
+    },
+    "block-1-fp16.onnx": {
+      "bytes": 5491605,
+      "sha256": "009a9773d8e87f892103c529e3d610d498c7561a8f0e44fdda793e9ddcfee1e6"
+    },
+    "block-2-fp16.onnx": {
+      "bytes": 5491767,
+      "sha256": "7171577efadcda629bc96fa2da00d8fdb69d51640c49898628a8565d677aceaf"
+    },
+    "block-3-fp16.onnx": {
+      "bytes": 5491767,
+      "sha256": "15eeb9c7589b6ae29895c8140376f521c3e217d04c002ba75ef4218e37c0a839"
+    },
+    "block-4-fp16.onnx": {
+      "bytes": 5491853,
+      "sha256": "ce5a5d76aa6381b409884fd3512c37dbe015a3a68d065936e0fceec945904562"
+    },
+    "block-5-fp16.onnx": {
+      "bytes": 5491918,
+      "sha256": "a3a9b40c548da730aa6cbc3b1dcb18d413a2212f971178466fe19b045d402f39"
+    }
+  }
+}

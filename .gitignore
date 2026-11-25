@@ -1,0 +1,46 @@
+*.iml
+.gradle
+.kotlin
+/local.properties
+.idea
+.DS_Store
+build
+/captures
+.externalNativeBuild
+.cxx
+app/build
+__pycache__/
+
+# Built packages: no releases from this repo
+*.apk
+*.aab
+*.idsig
+*.exe
+*.msi
+/prebuilt/
+/app/PetalMusic.jar
+/app/PetalMusic.cfg
+
+# Bundled Java runtime for the desktop build
+/runtime/
+
+# Local working files
+/.backups/
+/logo.zip
+/session-*.md
+/2026-*.txt
+/HANDOFF.md
+
+# AutoMix bench: copyrighted songs and generated output stay local
+/tools/automix-bench/songs/
+/tools/automix-bench/out/
+/tools/automix-bench/apk/
+
+# Review captures (APKs, screen recordings)
+/design/review/
+
+# Signing material never belongs here
+*.jks
+*.keystore
+*.pk8
+signing.properties

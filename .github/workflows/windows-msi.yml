@@ -1,0 +1,33 @@
+name: Windows MSI
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  msi:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Windows package (MSI + EXE)
+        run: ./gradlew.bat :desktop:packageDistributionForCurrentOs :desktop:packageWindowsFatJar
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: PetalMusic-windows
+          path: |
+            desktop/build/compose/binaries/main/msi/*.msi
+            desktop/build/compose/binaries/main/exe/*.exe
+            desktop/build/libs/PetalMusic-*-windows.jar

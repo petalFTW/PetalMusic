@@ -1,0 +1,804 @@
+<title>Petal Music Redesign</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a design document. Reading column for argument, wide rows where a phone sits beside its notes. */
+:root{
+  /* page */
+  --bg:#F7F3F6; --fg:#1E1622; --muted:#6C5E70; --rule:#E2D7E0; --panel:#EFE7ED; --accent:#8A00B7; --accent-soft:#F3DDF8;
+  /* app: Night */
+  --n0:#120D16; --n1:#1B1420; --n2:#261D2C; --nline:rgba(246,232,250,.09); --nt1:#F6EFF7; --nt2:#B9AABD; --nt3:#7E7083;
+  --dye:#EE44FF; --dye-lt:#FFC1FF; --on-dye:#190D22;
+  /* app: Paper */
+  --p0:#FBF8FA; --p1:#F1EAF0; --pline:rgba(40,16,48,.10); --pt1:#1D1320; --pt2:#665769; --pt3:#9A8C9D; --pdye:#8A00B7;
+  /* mix bands */
+  --b-sub:#7B78E0; --b-bass:#EE44FF; --b-mid:#4CB999; --b-high:#F2B84B;
+  --f-display:"Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Instrument Sans", "Segoe UI", Roboto, sans-serif;
+  --f-data:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#100B13; --fg:#F2EBF3; --muted:#A797AA; --rule:#2B2131; --panel:#1A131E; --accent:#F59BFF; --accent-soft:#2E1838; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#100B13; --fg:#F2EBF3; --muted:#A797AA; --rule:#2B2131; --panel:#1A131E; --accent:#F59BFF; --accent-soft:#2E1838; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.read{max-width:68ch}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(2.4rem,6vw,4rem);line-height:1;font-weight:800;letter-spacing:-.03em}
+h2{font-size:clamp(1.6rem,3.2vw,2.2rem);line-height:1.1;font-weight:700}
+h3{font-size:1.15rem;line-height:1.3;font-weight:700}
+p{margin:0}
+.lede{font-size:1.2rem;line-height:1.55;color:var(--fg);max-width:60ch}
+.muted{color:var(--muted)}
+.data{font-family:var(--f-data);font-size:.82rem;letter-spacing:0}
+code{font-family:var(--f-data);font-size:.86em;background:var(--panel);padding:.1em .35em;border-radius:4px}
+a{color:var(--accent)}
+section{padding-top:72px;display:flex;flex-direction:column;gap:20px}
+.kicker{font-family:var(--f-data);font-size:.78rem;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--rule);margin:0}
+ul.plain{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+ul.plain li::marker{color:var(--muted)}
+
+/* masthead */
+.mast{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:end}
+.mast svg{width:92px;height:92px}
+.mast .meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:18px}
+@media (max-width:620px){.mast{grid-template-columns:1fr}.mast svg{width:64px;height:64px}}
+
+/* tables */
+.tbl{overflow-x:auto;border-top:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.95rem}
+th,td{text-align:left;vertical-align:top;padding:12px 14px 12px 0;border-bottom:1px solid var(--rule)}
+th{font-family:var(--f-data);font-weight:500;font-size:.78rem;color:var(--muted)}
+td:first-child{font-weight:600;white-space:nowrap}
+
+/* audit list */
+.audit{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 40px}
+.audit div{padding:16px 0;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;min-width:0}
+.audit b{font-family:var(--f-display);font-weight:700}
+
+/* foundations */
+.dyes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.dye{display:flex;flex-direction:column;gap:8px}
+.dye .sw{height:72px;border-radius:6px;display:grid;grid-template-columns:3fr 2fr 1fr}
+.dye .sw span:first-child{border-radius:6px 0 0 6px}.dye .sw span:last-child{border-radius:0 6px 6px 0}
+.dye b{font-family:var(--f-display)}
+.ramp{display:flex;flex-wrap:wrap;gap:10px}
+.ramp div{display:flex;flex-direction:column;gap:6px;width:112px}
+.ramp i{display:block;height:44px;border-radius:6px;border:1px solid var(--rule)}
+.typespec{display:flex;flex-direction:column;border-top:1px solid var(--rule)}
+.typespec div{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--rule);min-width:0}
+.typespec div>*{min-width:0;overflow-wrap:anywhere}
+@media (max-width:560px){.typespec div{grid-template-columns:1fr;gap:4px}}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+@media (max-width:800px){.twocol{grid-template-columns:1fr}}
+.glyphs{display:flex;flex-wrap:wrap;gap:18px;color:var(--fg)}
+.glyphs figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:64px}
+.glyphs svg{width:28px;height:28px}
+.glyphs figure.key svg{color:var(--accent)}
+
+/* IA */
+.ia{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch}
+.ia .col{background:var(--panel);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.ia .arrow{align-self:center;font-family:var(--f-data);color:var(--muted)}
+.ia ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+@media (max-width:760px){.ia{grid-template-columns:1fr}.ia .arrow{justify-self:center;transform:rotate(90deg)}}
+
+/* screen rows */
+.screen{display:grid;grid-template-columns:300px 1fr;gap:48px;align-items:start;padding:40px 0;border-top:1px solid var(--rule)}
+.screen.pair{grid-template-columns:300px 300px 1fr}
+.screen .notes{display:flex;flex-direction:column;gap:14px;min-width:0;max-width:60ch}
+.screen .notes h3{font-size:1.5rem}
+@media (max-width:1000px){.screen.pair{grid-template-columns:300px 1fr}.screen.pair .notes{grid-column:1/-1}}
+@media (max-width:700px){.screen,.screen.pair{grid-template-columns:1fr;justify-items:center}.screen .notes{justify-self:stretch}}
+
+/* ---------- phone mockups ---------- */
+.phone{width:300px;max-width:100%;height:640px;border-radius:38px;padding:8px;background:#060407;box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 60px -24px rgba(30,10,40,.45)}
+.scr{position:relative;width:100%;height:100%;border-radius:31px;overflow:hidden;background:var(--n0);color:var(--nt1);font:13px/1.35 var(--f-body);display:flex;flex-direction:column}
+.scr.paper{background:var(--p0);color:var(--pt1)}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:10px 22px 4px;font:500 11px var(--f-data);flex:none}
+.sb .r{display:flex;gap:4px;align-items:center}.sb .r i{display:block;width:14px;height:8px;border-radius:2px;border:1.4px solid currentColor;opacity:.8}
+.body{flex:1;overflow:hidden;padding:6px 16px 0;display:flex;flex-direction:column;gap:14px}
+.ic{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ic.f{fill:currentColor;stroke:none}
+.t-display{font:800 26px/1.05 var(--f-display);letter-spacing:-.025em}
+.t-title{font:700 17px/1.2 var(--f-display);letter-spacing:-.01em}
+.t2{color:var(--nt2)}.t3{color:var(--nt3)}
+.paper .t2{color:var(--pt2)}.paper .t3{color:var(--pt3)}
+.mono{font:400 10.5px/1.3 var(--f-data)}
+.row{display:flex;align-items:center;gap:10px;min-width:0}
+.grow{flex:1;min-width:0}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--n2);display:grid;place-items:center;color:var(--nt2)}
+.chips{display:flex;gap:6px;overflow:hidden}
+.chip{flex:none;padding:6px 11px;border-radius:999px;border:1px solid var(--nline);font:500 11.5px var(--f-body);color:var(--nt2)}
+.chip.on{background:var(--nt1);color:var(--n0);border-color:transparent}
+.paper .chip{border-color:var(--pline);color:var(--pt2)}
+.sec{display:flex;justify-content:space-between;align-items:baseline}
+.sec .t-title{font-size:15px}
+.cv{border-radius:4px;flex:none;position:relative;overflow:hidden}
+.cv .lbl{position:absolute;left:7%;bottom:7%;font:700 9px/1 var(--f-display);letter-spacing:.02em}
+/* covers: flat, invented sleeves */
+.cv-tide{background:linear-gradient(#0f4c45 0 42%,#4cb999 42% 56%,#e6dcbc 56%)}
+.cv-glass{background:radial-gradient(circle at 58% 44%,#f26a2e 0 30%,transparent 30.5%),#5a1622}
+.cv-bus{background:radial-gradient(#ffd23f 20%,transparent 23%) 0 0/12px 12px,#14213d}
+.cv-moon{background:radial-gradient(circle at 50% 100%,#141014 0 40%,transparent 40.5%),#ece6da}
+.cv-static{background:repeating-linear-gradient(135deg,#f582bd 0 5px,#21101b 5px 13px)}
+.cv-copper{background:repeating-linear-gradient(90deg,#c0712a 0 2px,#2a1a12 2px 8px)}
+.cv-halcyon{background:linear-gradient(90deg,#2c3e8f 50%,#e8d3ff 50%)}
+.cv-rooms{background:linear-gradient(#e94f37,#e94f37) 30% 32%/42% 42% no-repeat,linear-gradient(#1d3557,#1d3557) 72% 70%/30% 30% no-repeat,#f1e8dc}
+.cv-field{background:#5f6a2a}
+.cv-field .lbl{font-size:34px;left:10%;bottom:4%;color:#efe9c9;font-weight:800}
+.cv-liked{background:var(--dye);display:grid;place-items:center;color:var(--on-dye)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{display:flex;align-items:center;gap:8px;background:var(--n1);border-radius:6px;overflow:hidden;min-width:0;height:44px}
+.tile .cv{width:44px;height:44px;border-radius:0}
+.tile span{font:600 11.5px/1.2 var(--f-body);padding-right:6px}
+.shelf{display:flex;gap:10px;overflow:hidden}
+.shelf>div{width:112px;flex:none;display:flex;flex-direction:column;gap:6px}
+.shelf .cv{width:112px;height:112px}
+.cap b{display:block;font:600 12px/1.25 var(--f-body)}
+.cap span{font-size:11px}
+.lrow{display:flex;align-items:center;gap:11px;min-width:0}
+.lrow .cv{width:48px;height:48px}
+.lrow b{display:block;font:600 13px/1.25 var(--f-body)}
+.lrow .sub{font-size:11.5px;color:var(--nt2)}
+.paper .lrow .sub{color:var(--pt2)}
+.tag{font:500 9.5px/1 var(--f-data);padding:3px 5px;border-radius:3px;border:1px solid var(--nline);color:var(--nt2);flex:none}
+.paper .tag{border-color:var(--pline);color:var(--pt2)}
+.mixcard{background:var(--n1);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ribbon{display:flex;align-items:center}
+.ribbon .cv{width:54px;height:54px;margin-right:-14px;box-shadow:-3px 0 0 var(--n1)}
+.btn-play{width:40px;height:40px;border-radius:50%;background:var(--dye);color:var(--on-dye);display:grid;place-items:center;flex:none}
+.btn-play .ic{width:18px;height:18px}
+/* shell */
+.mini{margin:0 8px;background:var(--n2);border-radius:10px;padding:7px 8px 9px;position:relative;flex:none}
+.mini .cv{width:36px;height:36px}
+.mini .prog{position:absolute;left:10px;right:10px;bottom:3px;height:2px;background:rgba(255,255,255,.12);border-radius:2px}
+.mini .prog i{position:absolute;left:0;top:0;bottom:0;width:38%;background:var(--nt1);border-radius:2px}
+.mini .prog em{position:absolute;left:84%;top:-2px;width:2px;height:6px;background:var(--dye);border-radius:1px}
+.nav{display:flex;justify-content:space-around;padding:8px 0 14px;flex:none}
+.nav div{display:flex;flex-direction:column;align-items:center;gap:3px;font:500 10px var(--f-body);color:var(--nt3)}
+.nav div.on{color:var(--nt1)}
+.nav .ic{width:22px;height:22px}
+/* player */
+.player{background:#2a0e14}
+.player .body{gap:0;padding:4px 22px 0}
+.pl-top{display:flex;justify-content:space-between;align-items:center;padding:4px 0 14px}
+.pl-top .ctx{text-align:center;font-size:11px}
+.pl-art{width:100%;aspect-ratio:1;border-radius:6px;box-shadow:0 18px 40px -16px rgba(0,0,0,.7)}
+.pl-meta{display:flex;align-items:flex-start;gap:10px;padding-top:20px}
+.pl-meta h4{margin:0;font:800 21px/1.12 var(--f-display);letter-spacing:-.02em}
+.pl-meta p{font-size:14px;color:rgba(255,236,240,.72)}
+.pl-src{display:flex;gap:6px;margin-top:7px}
+.pl-src .tag{border-color:rgba(255,255,255,.16);color:rgba(255,236,240,.7)}
+.seek{position:relative;height:22px;margin-top:14px}
+.seek .tr{position:absolute;left:0;right:0;top:10px;height:3px;border-radius:3px;background:rgba(255,255,255,.18)}
+.seek .fill{position:absolute;left:0;top:10px;height:3px;width:34%;border-radius:3px;background:#fff}
+.seek .th{position:absolute;left:34%;top:5px;width:13px;height:13px;margin-left:-6px;border-radius:50%;background:#fff}
+.seek .cue{position:absolute;left:86%;top:4px;width:2px;height:15px;border-radius:1px;background:var(--dye-lt)}
+.seek .cuezone{position:absolute;left:86%;right:0;top:10px;height:3px;background:repeating-linear-gradient(90deg,rgba(255,193,255,.65) 0 2px,transparent 2px 4px)}
+.times{display:flex;justify-content:space-between;font:400 10.5px var(--f-data);color:rgba(255,236,240,.62)}
+.times em{font-style:normal;color:var(--dye-lt)}
+.transport{display:flex;align-items:center;justify-content:space-between;padding:16px 2px 4px}
+.transport .ic{width:22px;height:22px}
+.transport .big{width:62px;height:62px;border-radius:50%;background:#fff;color:#2a0e14;display:grid;place-items:center}
+.transport .big .ic{width:28px;height:28px}
+.transport .mid .ic{width:30px;height:30px}
+.dim{opacity:.5}
+.pl-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 2px 0;color:rgba(255,236,240,.75)}
+.seamtog{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 8px;border-radius:999px;background:rgba(255,193,255,.14);color:var(--dye-lt);font:500 11px var(--f-body)}
+.seamtog .ic{width:18px;height:18px}
+/* mixing */
+.mixing{background:#1a1424}
+.covers2{position:relative;height:200px;margin-top:2px}
+.covers2 .cv{position:absolute;width:176px;height:176px;border-radius:6px;box-shadow:0 18px 40px -16px rgba(0,0,0,.7)}
+.covers2 .a{left:0;top:0;opacity:.55}
+.covers2 .b{right:0;top:24px}
+.mixread{display:flex;flex-wrap:wrap;gap:4px 10px;font:400 10.5px var(--f-data);color:rgba(240,232,255,.7);margin-top:8px}
+.mixread b{font-weight:500;color:#fff}
+.wave{display:block;width:100%;height:132px;margin-top:12px}
+.legend{display:flex;gap:10px;font:400 9.5px var(--f-data);color:rgba(240,232,255,.65);margin-top:6px}
+.legend i{display:inline-block;width:8px;height:2px;margin-right:4px;vertical-align:middle}
+/* queue */
+.qnow{display:flex;gap:11px;align-items:center;padding-bottom:4px}
+.qnow .cv{width:56px;height:56px}
+.seam{display:flex;align-items:center;gap:8px;padding:2px 0 2px 16px;color:var(--dye-lt);font:400 10px var(--f-data)}
+.seam .ic{width:16px;height:16px}
+.seam .ln{flex:none;width:1px;height:22px;background:linear-gradient(var(--dye),transparent);margin-right:6px}
+.seam.cut{color:var(--nt3)}
+.seam.cut .ln{background:var(--nline)}
+.qlist{display:flex;flex-direction:column;gap:0}
+.qlist .lrow{padding:4px 0}
+.grip{color:var(--nt3);font:700 12px var(--f-data);letter-spacing:-1px}
+/* search */
+.field{display:flex;align-items:center;gap:8px;background:var(--n2);border-radius:10px;padding:10px 12px;color:var(--nt2)}
+.field b{color:var(--nt1);font-weight:500}
+.top{display:flex;gap:12px;align-items:center;background:var(--n1);border-radius:10px;padding:12px}
+.top .cv{width:76px;height:76px;border-radius:50%}
+.dup{font:400 10px var(--f-data);color:var(--nt3)}
+/* album paper */
+.alb-art{width:200px;height:200px;align-self:center;border-radius:6px;box-shadow:0 18px 36px -18px rgba(40,10,50,.45)}
+.alb h4{margin:0;font:800 22px/1.1 var(--f-display);letter-spacing:-.02em}
+.actions{display:flex;align-items:center;gap:16px;color:var(--pt2)}
+.actions .btn-play{background:var(--pdye);color:#fff;width:46px;height:46px;margin-left:auto}
+.trk{display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:center;padding:6px 0}
+.trk .n{font:400 11px var(--f-data);color:var(--pt3)}
+.trk b{display:block;font:600 13px/1.25 var(--f-body)}
+.trk.on b,.trk.on .n{color:var(--pdye)}
+/* settings */
+.grp{display:flex;flex-direction:column}
+.grp h5{margin:0 0 4px;font:500 10.5px var(--f-data);color:var(--nt3)}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--nline)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--n2);border-radius:8px;padding:3px;font:500 11px var(--f-body);text-align:center;color:var(--nt2)}
+.seg span{padding:6px 0;border-radius:6px}
+.seg .on{background:var(--nt1);color:var(--n0)}
+.slider{position:relative;height:18px}
+.slider i{position:absolute;left:0;right:0;top:8px;height:3px;background:var(--n2);border-radius:3px}
+.slider b{position:absolute;left:0;top:8px;height:3px;width:58%;background:var(--dye);border-radius:3px}
+.slider em{position:absolute;left:58%;top:3px;width:13px;height:13px;margin-left:-6px;border-radius:50%;background:var(--nt1)}
+.switch{width:34px;height:20px;border-radius:999px;background:var(--dye);position:relative;flex:none}
+.switch::after{content:"";position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--on-dye)}
+
+/* ---------- glass + bleed layers ---------- */
+.scr>.layer{position:absolute;z-index:0}
+.scr>:not(.layer){position:relative;z-index:1}
+.scr>.dock{position:absolute;z-index:2;left:0;right:0;bottom:0}
+.bleed{left:0;right:0;top:0;height:370px}
+.bleed::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(18,13,22,.30) 0%,rgba(18,13,22,0) 30%,rgba(18,13,22,.82) 76%,var(--n0) 100%)}
+.bleed.pfade::after{background:linear-gradient(to bottom,rgba(251,248,250,0) 0%,rgba(251,248,250,0) 52%,rgba(251,248,250,.88) 82%,var(--p0) 100%)}
+.backdrop{inset:-60px;filter:blur(38px) saturate(1.35);transform:scale(1.25)}
+.tint{inset:0;background:rgba(14,6,12,.42)}
+.dock{background:rgba(18,13,22,.52);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-top:1px solid rgba(255,255,255,.07);padding-top:8px}
+.dock .mini{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08)}
+.g{background:rgba(255,255,255,.13);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);border:1px solid rgba(255,255,255,.14)}
+.paper .g{background:rgba(255,255,255,.45);border-color:rgba(255,255,255,.6);color:var(--pt1)}
+.chip.g{color:#fff}
+.chip.g.on{background:#fff;color:var(--n0)}
+.gbtn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 18px;border-radius:999px;background:var(--dye);color:var(--on-dye);font:600 13px var(--f-body)}
+.pill .ic{width:16px;height:16px}
+.hero-txt{display:flex;flex-direction:column;gap:4px;margin-top:118px}
+.hero-txt h4{margin:0;font:800 34px/1 var(--f-display);letter-spacing:-.03em}
+.bigshelf{display:flex;gap:12px;overflow:hidden}
+.bigshelf>div{width:136px;flex:none;display:flex;flex-direction:column;gap:7px}
+.bigshelf .cv{width:136px;height:136px;border-radius:5px}
+.libgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+.libgrid .cv{width:100%;aspect-ratio:1;border-radius:5px}
+.libgrid .cap{margin-top:6px}
+.sheet{margin:8px 0 0;border-radius:22px 22px 0 0;background:rgba(18,13,22,.50);backdrop-filter:blur(30px) saturate(150%);-webkit-backdrop-filter:blur(30px) saturate(150%);border-top:1px solid rgba(255,255,255,.12);padding-top:8px}
+.grab{width:36px;height:4px;border-radius:4px;background:rgba(255,255,255,.3);align-self:center;flex:none}
+.pl-foot.g{border-radius:16px;padding:8px 14px;margin-top:12px;color:#fff}
+.glassdemo{position:relative;border-radius:10px;overflow:hidden;min-height:220px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:22px;align-items:end}
+.glassdemo .art{position:absolute;inset:0;z-index:0}
+.glassdemo>div:not(.art){position:relative;z-index:1;border-radius:12px;padding:14px;color:#fff;min-height:120px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}
+.glassdemo b{font-family:var(--f-display)}
+.glassdemo span{font:400 11px/1.4 var(--f-data);color:rgba(255,255,255,.8)}
+@media (max-width:620px){.glassdemo{grid-template-columns:1fr}}
+
+/* checklists */
+.tells{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:0 40px}
+.tells div{display:grid;grid-template-columns:1fr;gap:4px;padding:14px 0;border-top:1px solid var(--rule);min-width:0}
+.tells s{color:var(--muted);text-decoration-color:var(--muted)}
+.phases{display:flex;flex-direction:column}
+.phase{display:grid;grid-template-columns:120px 1fr;gap:24px;padding:20px 0;border-top:1px solid var(--rule)}
+.phase>*{min-width:0}
+.phase .kicker{padding-top:4px}
+@media (max-width:620px){.phase{grid-template-columns:1fr;gap:6px}}
+.qs{display:flex;flex-direction:column;gap:12px;counter-reset:q}
+.qs div{background:var(--accent-soft);border-radius:10px;padding:16px 18px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-seam" viewBox="0 0 24 24"><path d="M3 6h3c6 0 8 12 15 12"/><path d="M3 18c7 0 9-12 15-12h3"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.2v13.6L19 12z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" rx="1"/><rect x="13.9" y="5" width="3.6" height="14" rx="1"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 5.5v13L15 12z"/><rect x="16.5" y="5.5" width="2.6" height="13" rx="1"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M19 5.5v13L9 12z"/><rect x="4.9" y="5.5" width="2.6" height="13" rx="1"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3c6 0 6 10 12 10h3"/><path d="M3 17h3c2 0 3.2-1.2 4.2-2.8"/><path d="M13.8 9.8C14.8 8.2 16 7 18 7h3"/><path d="M18.5 4l2.5 3-2.5 3"/><path d="M18.5 14l2.5 3-2.5 3"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 11V9.5A3.5 3.5 0 0 1 7.5 6H20"/><path d="M17 3l3 3-3 3"/><path d="M20 13v1.5a3.5 3.5 0 0 1-3.5 3.5H4"/><path d="M7 21l-3-3 3-3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.5-7.5-10.2A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.5 2.4C19.5 15.5 12 20 12 20z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-lib" viewBox="0 0 24 24"><path d="M5 4v16"/><path d="M9.5 4v16"/><path d="M14 5.2l5 14.6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 11h11"/><path d="M4 16h7"/><circle cx="16.5" cy="17.5" r="2.5"/><path d="M19 17.5V10"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><rect x="6.5" y="3" width="11" height="18" rx="2.5"/><circle cx="12" cy="14.5" r="3"/><circle cx="12" cy="7.5" r=".6"/></symbol>
+  <symbol id="i-lyrics" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 11h12"/><path d="M4 16h8"/><path d="M15.5 19.5l2-4 2 4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.5"/><path d="M5.5 19.5c1.2-3.3 3.6-5 6.5-5s5.3 1.7 6.5 5"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M7 5v14"/><path d="M4 16l3 3 3-3"/><path d="M13 7h7"/><path d="M13 12h5"/><path d="M13 17h3"/></symbol>
+</svg>
+
+<main class="wrap">
+
+<header class="mast">
+  <svg viewBox="0 0 1000 1000" role="img" aria-label="Petal Music ribbon mark"><defs><linearGradient id="lb" gradientUnits="userSpaceOnUse" x1="567" y1="415" x2="748" y2="643"><stop offset="0" stop-color="#42005F"/><stop offset=".45" stop-color="#8A00B7"/><stop offset=".8" stop-color="#D90BF4"/><stop offset="1" stop-color="#EE44FF"/></linearGradient><linearGradient id="lf" gradientUnits="userSpaceOnUse" x1="419" y1="300" x2="426" y2="900"><stop offset="0" stop-color="#FFC1FF"/><stop offset=".3" stop-color="#EE44FF"/><stop offset=".65" stop-color="#D90BF4"/><stop offset="1" stop-color="#8A00B7"/></linearGradient><linearGradient id="lc" gradientUnits="userSpaceOnUse" x1="452" y1="166" x2="733" y2="537"><stop offset="0" stop-color="#FFC1FF"/><stop offset=".4" stop-color="#EE44FF"/><stop offset="1" stop-color="#D90BF4"/></linearGradient></defs><g transform="translate(-74,-92) scale(1.15)"><path d="M643,426C622,470 578,514 519,535L519,591C521,640 513,686 501,722C544,678 604,653 672,621C743,588 793,565 799,521C795,488 760,467 715,451C687,441 665,433 643,426Z" fill="url(#lb)"/><path d="M458,282C472,306 493,327 520,346L520,591C521,681 494,765 443,820C386,881 276,888 208,858C193,851 186,843 186,823C181,766 198,704 237,656C282,600 350,579 415,578C447,578 458,564 458,533Z" fill="url(#lf)"/><path d="M457,157C469,159 480,168 497,177C557,206 630,227 697,265C771,307 814,388 812,457C812,483 806,507 799,521C795,488 760,467 715,451C653,428 610,422 562,401C510,381 473,360 450,325C428,291 425,249 431,210C436,181 447,157 457,157Z" fill="url(#lc)"/></g></svg>
+  <div>
+    <p class="kicker">Design proposal · petalOS · PetalMusic v2 (bridgefx²)</p>
+    <h1>Petal Music, redrawn around the seam</h1>
+    <div class="meta data muted"><span>21 Nov 2026</span><span>Scope: Android app UI (rom + fdroid), desktop parity after</span><span>Status: for review</span></div>
+  </div>
+</header>
+
+<section class="read" style="padding-top:40px">
+  <p class="lede">Petal already does something Apple Music, Spotify, TIDAL and SoundCloud can't: it owns one queue across every source and mixes between any two tracks. The current UI hides that. This proposal rebuilds the interface around big cover art and frosted glass, uses the conventions people already know from those apps, and gives Petal its own identity by making the transition between songs (the seam) the thing you see.</p>
+  <p class="muted">Everything below is based on the Compose code in <code>app/src/main/kotlin/.../ui</code>. The screenshots in <code>design/review</code> predate it (rose accent, four tabs) and were not used as the baseline.</p>
+</section>
+
+<section>
+  <p class="kicker">01 · Where the app is today</p>
+  <h2>What the code shows</h2>
+  <div class="audit">
+    <div><b>Navigation is lopsided</b><p class="muted">Three tabs: Listen now, Search, Queue (<code>AppRoot.kt</code> <code>PetalNavBar</code>). Library has no tab. It lives inside Home as source chips, and the same <code>HomeScreen</code> composable is mounted for both the home and library routes. Settings hides behind a gear.</p></div>
+    <div><b>The library is organised by service</b><p class="muted"><code>LibraryEnvironment</code> switches the whole page per source (TIDAL, Device, Spotify, YT Music). You can't see all your albums at once, which works against the app's biggest strength.</p></div>
+    <div><b>Colour has no system</b><p class="muted">118 hard-coded <code>Color(0x…)</code> literals, 69 distinct, across the UI package. Card, nav, mini-player and search field each use a different near-black (<code>1D1D21</code>, <code>191B23</code>, <code>29282D</code>, <code>242428</code>). The search focus ring is still the old rose <code>FF647C</code>. All five source palettes are copies of one violet.</p></div>
+    <div><b>The player is crowded at the bottom</b><p class="muted">Six transport icons in one row (shuffle, previous, play, next, repeat, repeat-one) plus AutoMix and favourite squeezed into the title row. Queue is opened from a “more” icon.</p></div>
+    <div><b>AutoMix is described, not shown</b><p class="muted">The best piece of UI in the app, <code>MixWaveform</code>, only appears during a blend. Before that, the mix point is a line of small text. The queue shows nothing about how tracks will join.</p></div>
+    <div><b>Several AI-era tells</b><p class="muted">A sparkle icon (<code>AutoAwesome</code>) for AutoMix, a violet-to-purple gradient on buttons, a neon edge glow during mixes (<code>ChromaticAura</code>), letter-spaced eyebrows (“JUMP BACK IN”), and filler copy such as “All your music. One little world.”</p></div>
+    <div><b>Type is a single face at nine inline sizes</b><p class="muted">Rubik everywhere, with 10, 11, 12, 13, 14, 16, 17, 22 and 30sp set inline instead of through <code>PetalTypography</code>.</p></div>
+    <div><b>Good bones to keep</b><p class="muted">Artwork-driven player colour, the incoming cover rising through the outgoing one during a mix, the tall-touch seek bar, swipe-down to dismiss, spring transitions, source badges, the Ribbon logo pack.</p></div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">02 · Direction</p>
+  <h2>Borrow the conventions, own the seam</h2>
+  <div class="read" style="display:flex;flex-direction:column;gap:14px">
+    <p>People switching from another player should find everything where they expect it: three tabs, a floating mini-player, a full-screen player with big artwork, a library with filter chips. None of that needs inventing.</p>
+    <p>The look is art first. Covers are as large as each screen allows and often run edge to edge. Everything that floats over them is frosted glass, so the app takes its colour from whatever you're looking at or listening to.</p>
+    <p>Petal's identity comes from what only Petal does. Every place two songs meet gets a visible seam: a notch on the seek bar where the mix will start, a joint between rows in Up Next that tells you how the tracks will blend, and the two-lane waveform during the blend itself. The seam is drawn with the crossfade glyph and coloured with the Ribbon dye. Nothing else in the UI uses the dye as a fill except the play button, so the seam always reads as the special thing.</p>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Reference</th><th>Take</th><th>Leave</th></tr></thead>
+    <tbody>
+      <tr><td>Apple Music</td><td>Big square artwork on the player, blurred sleeve backgrounds, frosted glass tab bar and sheets, floating mini-player, bold left-aligned page titles</td><td>Glass panels behind plain lists, constantly animated backgrounds, the “Listen now” name</td></tr>
+      <tr><td>Spotify</td><td>Library filter chips with sort and grid/list toggle, quick-access tiles on Home, dense list rows</td><td>Brand green-on-black look, gradient album headers, algorithmic shelves Petal has no data for</td></tr>
+      <tr><td>TIDAL</td><td>Restraint: mostly monochrome chrome, honest audio-quality labels, generous spacing on album pages</td><td>Editorial content the sources can't supply through Petal</td></tr>
+      <tr><td>SoundCloud</td><td>The waveform as a scrubber. Petal already has one in <code>MixWaveform</code></td><td>Timed comments and social layers</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <p class="kicker">03 · Foundations</p>
+  <h2>Colour</h2>
+  <div class="read"><p>Use the five palettes from the Ribbon logo pack as <b>dyes</b>. A dye sets the accent for chrome (play button, seam, selected states). Orchid is the default because it matches the launcher icon. A sixth option, <b>System</b>, takes the petalOS Material You seed. On the player, the sleeve's colour still takes over the background, as it does today.</p></div>
+  <div class="dyes">
+    <div class="dye"><div class="sw"><span style="background:#EE44FF"></span><span style="background:#8A00B7"></span><span style="background:#190D22"></span></div><b>Orchid</b><span class="data muted">EE44FF · 8A00B7 · 190D22</span></div>
+    <div class="dye"><div class="sw"><span style="background:#BA83F4"></span><span style="background:#6130AC"></span><span style="background:#17111F"></span></div><b>Amethyst</b><span class="data muted">BA83F4 · 6130AC · 17111F</span></div>
+    <div class="dye"><div class="sw"><span style="background:#F582BD"></span><span style="background:#A5297A"></span><span style="background:#21101B"></span></div><b>Rose</b><span class="data muted">F582BD · A5297A · 21101B</span></div>
+    <div class="dye"><div class="sw"><span style="background:#B68CF0"></span><span style="background:#4050A6"></span><span style="background:#131423"></span></div><b>Twilight</b><span class="data muted">B68CF0 · 4050A6 · 131423</span></div>
+    <div class="dye"><div class="sw"><span style="background:#A0DEB6"></span><span style="background:#16816F"></span><span style="background:#10231F"></span></div><b>Jade</b><span class="data muted">A0DEB6 · 16816F · 10231F</span></div>
+  </div>
+  <div class="read"><p>Neutrals lean slightly toward the dye so the dark theme reads as plum-black rather than grey. Three surface steps replace the 69 literals. A light theme, <b>Paper</b>, follows the system setting.</p></div>
+  <div class="ramp">
+    <div><i style="background:#120D16"></i><span class="data">night.0 bg</span></div>
+    <div><i style="background:#1B1420"></i><span class="data">night.1 tile</span></div>
+    <div><i style="background:#261D2C"></i><span class="data">night.2 raised</span></div>
+    <div><i style="background:#F6EFF7"></i><span class="data">text.1</span></div>
+    <div><i style="background:#B9AABD"></i><span class="data">text.2</span></div>
+    <div><i style="background:#FBF8FA"></i><span class="data">paper.0 bg</span></div>
+    <div><i style="background:#F1EAF0"></i><span class="data">paper.1 tile</span></div>
+  </div>
+  <div class="read"><p>Rule: the dye is never a gradient. <code>accentBrush</code> goes away. Gradients stay only where they come from the artwork (sleeve colour fading into the page).</p></div>
+
+  <h2 style="margin-top:28px">Glass and artwork</h2>
+  <div class="read" style="display:flex;flex-direction:column;gap:14px">
+    <p>Cover art is the largest thing on every screen that has one. Home opens on a full-bleed sleeve, album pages bleed their cover under the status bar, the player sits on a blurred, enlarged copy of the sleeve, and Library defaults to a grid of big covers.</p>
+    <p>Everything that floats over that art is frosted glass: the tab bar and mini-player, buttons laid over covers, the Up Next sheet and the player's bottom controls. Because the glass picks up the colour of whatever is under it, each album tints the whole app as you browse. Three glass levels, so the material stays consistent:</p>
+  </div>
+  <div class="glassdemo">
+    <div class="art cv-glass"></div>
+    <div class="g" style="background:rgba(255,255,255,.13)"><b>Control</b><span>blur 16 · white 13% · 1dp edge 14%<br>Buttons and chips on art</span></div>
+    <div style="background:rgba(18,13,22,.52);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-top:1px solid rgba(255,255,255,.07)"><b>Bar</b><span>blur 24 · night 52% · top edge 7%<br>Tab bar, mini-player dock</span></div>
+    <div style="background:rgba(18,13,22,.5);backdrop-filter:blur(30px) saturate(150%);-webkit-backdrop-filter:blur(30px) saturate(150%);border:1px solid rgba(255,255,255,.12)"><b>Sheet</b><span>blur 30 · night 50% · edge 12%<br>Up Next, menus, dialogs</span></div>
+  </div>
+  <ul class="plain read">
+    <li>Glass is only used where something sits over artwork or scrolling content. Plain lists stay on the page without a panel, so the glass keeps its meaning.</li>
+    <li>Each glass level has a minimum tint, so text on it passes contrast even over a white cover.</li>
+    <li>In Compose, real backdrop blur needs the Haze library (<code>dev.chrisbanes.haze</code>), backed by <code>RenderEffect</code> on Android 12+. Below that, or with battery saver on, the same surfaces fall back to an 88% solid tint. petalOS gets full blur. The fdroid build gets the fallback on older devices.</li>
+    <li>Blurred sleeve backgrounds are rendered once per cover at low resolution and cached, so they don't re-blur every frame.</li>
+  </ul>
+
+  <h2 style="margin-top:28px">Type</h2>
+  <div class="read"><p>Three bundled faces, all SIL Open Font License, so they can ship in the ROM. One display face with character for titles, a plain workhorse for lists, and a monospace for the numbers music people actually read: BPM, key, sample rate, mix times.</p></div>
+  <div class="typespec">
+    <div><span class="data muted">Display · Schibsted Grotesk 800 · 30/32</span><span style="font:800 30px/1.05 var(--f-display);letter-spacing:-.025em">Library</span></div>
+    <div><span class="data muted">Title · Schibsted Grotesk 700 · 20/24</span><span style="font:700 20px/1.2 var(--f-display);letter-spacing:-.01em">Recently added</span></div>
+    <div><span class="data muted">Body · Instrument Sans 500 · 15/20</span><span style="font:500 15px/1.35 var(--f-body)">Glasshouse · Ada Ferro</span></div>
+    <div><span class="data muted">Caption · Instrument Sans 400 · 12/16</span><span style="font:400 12px/1.35 var(--f-body)" class="muted">Album · TIDAL · 11 songs</span></div>
+    <div><span class="data muted">Data · IBM Plex Mono 400 · 11/14</span><span style="font:400 12px/1.3 var(--f-data)">FLAC 24/96 · 124 → 126 BPM · 8A → 9A</span></div>
+  </div>
+  <p class="read muted">Every size goes through <code>PetalTypography</code>. No inline <code>fontSize</code> in screens.</p>
+
+  <div class="twocol" style="margin-top:28px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <h2>Shape and space</h2>
+      <ul class="plain">
+        <li><b>Sleeves are 4dp</b> (6dp on the player). Square covers read as records, the way TIDAL and Apple draw them. Artists stay circular.</li>
+        <li><b>Lists sit on the page</b>, with no card behind them. Solid cards are kept for the mix card only. Floating things are glass.</li>
+        <li><b>10dp</b> for the mini-player and cards, <b>22dp</b> top corners for sheets, <b>pill</b> for chips and toggles, circles for glass icon buttons. The 1dp light edge is kept, but only on glass, where it marks the edge of the material.</li>
+        <li>Spacing on a 4dp grid: 16 page gutter, 12 between rows, 24 between sections.</li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <h2>Icons</h2>
+      <p class="muted">Replace mixed Material filled icons with one stroke set (1.75dp, round caps), drawn as vector drawables. Transport icons stay filled for weight. The AutoMix sparkle becomes the seam: two crossing fade curves.</p>
+      <div class="glyphs">
+        <figure class="key"><svg class="ic"><use href="#i-seam"/></svg><span class="data">seam</span></figure>
+        <figure><svg class="ic"><use href="#i-home"/></svg><span class="data">home</span></figure>
+        <figure><svg class="ic"><use href="#i-search"/></svg><span class="data">search</span></figure>
+        <figure><svg class="ic"><use href="#i-lib"/></svg><span class="data">library</span></figure>
+        <figure><svg class="ic"><use href="#i-queue"/></svg><span class="data">up next</span></figure>
+        <figure><svg class="ic"><use href="#i-shuffle"/></svg><span class="data">shuffle</span></figure>
+        <figure><svg class="ic"><use href="#i-repeat"/></svg><span class="data">repeat</span></figure>
+        <figure><svg class="ic"><use href="#i-heart"/></svg><span class="data">like</span></figure>
+        <figure><svg class="ic"><use href="#i-dl"/></svg><span class="data">download</span></figure>
+        <figure><svg class="ic"><use href="#i-out"/></svg><span class="data">output</span></figure>
+      </div>
+    </div>
+  </div>
+
+  <h2 style="margin-top:28px">Motion</h2>
+  <ul class="plain read">
+    <li>Keep the existing springs for navigation and the player sheet. They already feel right.</li>
+    <li>One signature moment: during a mix, the incoming sleeve slides in from the right over the outgoing one, and the blurred background crossfades between the two covers on the same progress value. Every glass surface on screen shifts colour with it. This replaces the neon edge glow.</li>
+    <li>Full-bleed covers on Home and album pages scroll at half speed and stay behind the content. Glass top bars fade in once the cover has scrolled away.</li>
+    <li>The seek bar morphs into the two-lane waveform when the mix starts and back when it ends (already a <code>Crossfade</code>; make it a height + content transform).</li>
+    <li>With “Remove animations” on, the sleeves swap at the midpoint with no slide.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="kicker">04 · Structure</p>
+  <h2>Navigation</h2>
+  <div class="ia">
+    <div class="col"><span class="kicker">Now</span><ol><li><b>Listen now</b>: hero card, recents, plus the whole per-source library behind chips</li><li><b>Search</b></li><li><b>Queue</b> as a tab, and again as an overlay from the player</li><li>Settings: gear on Listen now</li></ol></div>
+    <div class="arrow">→</div>
+    <div class="col"><span class="kicker">Proposed</span><ol><li><b>Home</b>: what to play next. Quick tiles, mixes, recently added</li><li><b>Search</b>: every source at once, results merged</li><li><b>Library</b>: one library across all sources, filtered by type and source</li><li>Up Next lives in the player, opened from the player or a long-press on the mini-player</li><li>Settings: profile button on every tab's header</li></ol></div>
+  </div>
+  <p class="read muted">Moving Queue out of the tab bar matches every reference app and frees the slot Library needs. The <code>Routes.QUEUE</code> destination stays for deep links.</p>
+</section>
+
+<section style="gap:0">
+  <p class="kicker">05 · Screens</p>
+  <h2 style="margin-bottom:12px">Mockups</h2>
+  <p class="read muted" style="margin-bottom:24px">Covers, artists and albums are invented placeholders. Sizes are drawn at roughly 83% of a 360dp phone.</p>
+
+  <!-- HOME -->
+  <div class="screen">
+    <div class="phone"><div class="scr">
+      <div class="layer bleed cv-glass"></div>
+      <div class="sb"><span>21:14</span><span class="r"><i></i></span></div>
+      <div class="body">
+        <div class="hdr"><span class="t-display">Home</span><span class="gbtn g"><svg class="ic" style="width:18px;height:18px"><use href="#i-user"/></svg></span></div>
+        <div class="chips"><span class="chip g on">All</span><span class="chip g">Device</span><span class="chip g">TIDAL</span><span class="chip g">Spotify</span><span class="chip g">YT Music</span></div>
+        <div class="hero-txt">
+          <span style="font:500 11.5px var(--f-body);color:rgba(255,236,240,.8)">Jump back in</span>
+          <h4>Glasshouse</h4>
+          <span class="mono" style="color:rgba(255,236,240,.75)">Ada Ferro · Album · TIDAL</span>
+          <div class="row" style="margin-top:10px;gap:8px"><span class="pill"><svg class="ic f"><use href="#i-play"/></svg>Play</span><span class="gbtn g"><svg class="ic" style="width:18px;height:18px"><use href="#i-shuffle"/></svg></span><span class="gbtn g"><svg class="ic" style="width:18px;height:18px"><use href="#i-seam"/></svg></span></div>
+        </div>
+        <div class="sec" style="margin-top:6px"><span class="t-title">Recently added</span><span class="t3" style="font-size:11px">See all</span></div>
+        <div class="bigshelf">
+          <div><div class="cv cv-halcyon"></div><div class="cap"><b class="ell">Halcyon</b><span class="t2">Wren Hollow</span></div></div>
+          <div><div class="cv cv-field"><span class="lbl">F</span></div><div class="cap"><b class="ell">Field Notes</b><span class="t2">Saltmarsh</span></div></div>
+          <div><div class="cv cv-copper"></div><div class="cap"><b class="ell">Copper Wire</b><span class="t2">Juno Vale</span></div></div>
+        </div>
+        <div class="mixcard">
+          <div class="sec"><span class="t-title">Late set</span><span class="mono t3">47 min</span></div>
+          <div class="row"><div class="ribbon"><div class="cv cv-moon"></div><div class="cv cv-copper"></div><div class="cv cv-halcyon"></div><div class="cv cv-bus"></div></div><span class="grow"></span><span class="btn-play"><svg class="ic f"><use href="#i-play"/></svg></span></div>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="mini"><div class="row"><div class="cv cv-glass"></div><div class="grow"><b class="ell" style="display:block;font:600 12.5px var(--f-body)">Glasshouse</b><span class="t2" style="font-size:11px">Ada Ferro</span></div><svg class="ic f"><use href="#i-pause"/></svg><svg class="ic f" style="margin-left:6px"><use href="#i-next"/></svg></div><div class="prog"><i></i><em></em></div></div>
+        <div class="nav"><div class="on"><svg class="ic"><use href="#i-home"/></svg>Home</div><div><svg class="ic"><use href="#i-search"/></svg>Search</div><div><svg class="ic"><use href="#i-lib"/></svg>Library</div></div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Home</p><h3>Opens on a sleeve</h3>
+      <ul class="plain">
+        <li>The page starts on one full-bleed cover, running up under the status bar: your last playlist or album, or what's playing. The title sits on the art, with Play, Shuffle and Start a mix as glass buttons. This keeps the idea of today's <code>FeatureCard</code> but uses the whole width and drops the letter-spaced eyebrow.</li>
+        <li>The header, avatar and source chips are glass, so they take on the cover's colour. The chips filter the page. “All” is the default.</li>
+        <li>Shelf covers are about 164dp with no card or padding around them, so the art gets the full width of each slot.</li>
+        <li><b>Mix card</b>: a ready-made AutoMix session built from your history, with sleeves overlapping like a ribbon. It needs a small playlist generator, so it can ship after the rest.</li>
+        <li>The tab bar and mini-player share one glass dock. Content scrolls under it. The mini-player's progress hairline has a dye-coloured tick where the next mix will start.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PLAYER + MIXING -->
+  <div class="screen pair">
+    <div class="phone"><div class="scr player">
+      <div class="layer backdrop cv-glass"></div><div class="layer tint"></div>
+      <div class="sb"><span>21:14</span><span class="r"><i></i></span></div>
+      <div class="body" style="padding:4px 16px 0">
+        <div class="pl-top"><svg class="ic"><use href="#i-down"/></svg><div class="ctx"><span style="color:rgba(255,236,240,.6)">Playing from</span><br><b style="font-weight:600">Late set</b></div><svg class="ic f"><use href="#i-more"/></svg></div>
+        <div class="cv pl-art cv-glass"></div>
+        <div class="pl-meta"><div class="grow"><h4>Glasshouse</h4><p>Ada Ferro</p><div class="pl-src"><span class="tag">TIDAL</span><span class="tag">FLAC 24/96</span></div></div><svg class="ic" style="margin-top:4px"><use href="#i-heart"/></svg></div>
+        <div class="seek"><div class="tr"></div><div class="cuezone"></div><div class="fill"></div><div class="th"></div><div class="cue"></div></div>
+        <div class="times"><span>1:12</span><em>mix 3:04</em><span>−2:21</span></div>
+        <div class="transport"><svg class="ic dim"><use href="#i-shuffle"/></svg><span class="mid"><svg class="ic f"><use href="#i-prev"/></svg></span><span class="big"><svg class="ic f"><use href="#i-pause"/></svg></span><span class="mid"><svg class="ic f"><use href="#i-next"/></svg></span><svg class="ic dim"><use href="#i-repeat"/></svg></div>
+        <div class="pl-foot g"><svg class="ic"><use href="#i-out"/></svg><span class="seamtog"><svg class="ic"><use href="#i-seam"/></svg>Adaptive</span><svg class="ic"><use href="#i-lyrics"/></svg><svg class="ic"><use href="#i-queue"/></svg></div>
+      </div>
+    </div></div>
+    <div class="phone"><div class="scr player mixing">
+      <div class="layer backdrop cv-glass" style="opacity:.45"></div><div class="layer backdrop cv-halcyon" style="opacity:.6"></div><div class="layer tint" style="background:rgba(12,8,22,.5)"></div>
+      <div class="sb"><span>21:16</span><span class="r"><i></i></span></div>
+      <div class="body" style="padding:4px 16px 0">
+        <div class="pl-top"><svg class="ic"><use href="#i-down"/></svg><div class="ctx"><span style="color:rgba(240,232,255,.6)">Mixing into</span><br><b style="font-weight:600">Halcyon</b></div><svg class="ic f"><use href="#i-more"/></svg></div>
+        <div class="covers2"><div class="cv a cv-glass"></div><div class="cv b cv-halcyon"></div></div>
+        <div class="pl-meta" style="padding-top:12px"><div class="grow"><h4>Halcyon</h4><p style="color:rgba(240,232,255,.72)">Wren Hollow</p></div><svg class="ic"><use href="#i-heart"/></svg></div>
+        <div class="mixread"><span>Beatmatch</span><span><b>124 → 126</b> BPM</span><span><b>8A → 9A</b></span><span>12.0 s</span></div>
+        <svg class="wave" id="mixwave" viewBox="0 0 256 132" preserveAspectRatio="none" aria-label="Two-lane mix waveform"></svg>
+        <div class="legend"><span><i style="background:var(--b-sub)"></i>sub</span><span><i style="background:var(--b-bass)"></i>bass</span><span><i style="background:var(--b-mid)"></i>mid</span><span><i style="background:var(--b-high)"></i>high</span></div>
+        <div class="transport" style="padding-top:10px"><svg class="ic dim"><use href="#i-shuffle"/></svg><span class="mid"><svg class="ic f"><use href="#i-prev"/></svg></span><span class="big" style="color:#1a1424"><svg class="ic f"><use href="#i-pause"/></svg></span><span class="mid"><svg class="ic f"><use href="#i-next"/></svg></span><svg class="ic dim"><use href="#i-repeat"/></svg></div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Now playing</p><h3>The mix point is always visible</h3>
+      <ul class="plain">
+        <li>The sleeve runs nearly edge to edge (16dp gutters) on a blurred, enlarged copy of itself, darkened just enough for white text. <code>rememberArtPalette</code> still sets the tint and accents.</li>
+        <li>Today's full-bleed crop stays available as a second style (Appearance → Player sleeve: Framed or Full-bleed). Framed is the default because it never crops the cover.</li>
+        <li>The bottom controls sit on a glass bar that picks up the sleeve's colour.</li>
+        <li>Transport drops to five controls. Repeat becomes one button cycling off / all / one, as in Apple Music and Spotify.</li>
+        <li>The seek bar shows the chosen cue as a notch with a dotted overlap zone, labelled <span class="data">mix 3:04</span>. Today that is the “Estimated mix” text line.</li>
+        <li>A bottom row holds output, the seam toggle (showing the style name, tap to switch, long-press for settings), lyrics and Up Next.</li>
+        <li><b>While mixing</b>, the header says what you're mixing into, the incoming sleeve slides over the outgoing one, the blurred background crossfades between the two covers, and the seek bar becomes <code>MixWaveform</code>: outgoing above, incoming below, beat grid, and the four band handovers. Band curves stop at the playhead because the controller doesn't predict the future. The readout uses the mono face.</li>
+        <li>Title and favourite move to the incoming track at the halfway point, matching when the audio actually hands over.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- QUEUE -->
+  <div class="screen">
+    <div class="phone"><div class="scr">
+      <div class="layer backdrop cv-glass"></div><div class="layer tint"></div>
+      <div class="sb"><span>21:14</span><span class="r"><i></i></span></div>
+      <div class="body sheet">
+        <span class="grab"></span>
+        <div class="hdr"><svg class="ic"><use href="#i-down"/></svg><span class="t-title">Up next</span><svg class="ic f"><use href="#i-more"/></svg></div>
+        <div class="qnow"><div class="cv cv-glass"></div><div class="grow"><b style="display:block;font:700 15px/1.2 var(--f-display)">Glasshouse</b><span class="t2" style="font-size:12px">Ada Ferro</span><div class="mono t3" style="margin-top:3px">TIDAL · 1:12 / 3:33</div></div></div>
+        <div class="qlist">
+          <div class="seam"><span class="ln"></span><svg class="ic"><use href="#i-seam"/></svg>12 s · beatmatch · bass swap</div>
+          <div class="lrow"><div class="cv cv-halcyon"></div><div class="grow"><b class="ell">Halcyon</b><span class="sub">Wren Hollow · Device</span></div><span class="grip">⋮⋮</span></div>
+          <div class="seam cut"><span class="ln"></span><svg class="ic"><use href="#i-seam"/></svg>gapless · same album</div>
+          <div class="lrow"><div class="cv cv-halcyon"></div><div class="grow"><b class="ell">Harbour Light</b><span class="sub">Wren Hollow · Device</span></div><span class="grip">⋮⋮</span></div>
+          <div class="seam"><span class="ln"></span><svg class="ic"><use href="#i-seam"/></svg>8 s · Adaptive · 98 → 102 BPM</div>
+          <div class="lrow"><div class="cv cv-bus"></div><div class="grow"><b class="ell">Night Bus</b><span class="sub">Oslo Coast · YT Music</span></div><span class="grip">⋮⋮</span></div>
+          <div class="seam"><span class="ln"></span><svg class="ic"><use href="#i-seam"/></svg>10 s · Clean</div>
+          <div class="lrow"><div class="cv cv-moon"></div><div class="grow"><b class="ell">Paper Moons</b><span class="sub">Mara Lind · Spotify</span></div><span class="grip">⋮⋮</span></div>
+          <div class="seam"><span class="ln"></span><svg class="ic"><use href="#i-seam"/></svg>estimating…</div>
+          <div class="lrow"><div class="cv cv-copper"></div><div class="grow"><b class="ell">Copper Wire</b><span class="sub">Juno Vale · Deezer</span></div><span class="grip">⋮⋮</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Up next</p><h3>The queue reads like a ribbon</h3>
+      <ul class="plain">
+        <li>A glass sheet slides up over the player, so the current sleeve's colour stays behind the list. Today it's an opaque overlay and also a tab. The tab goes.</li>
+        <li>Between every pair of rows, a seam line says how they'll join: length, style, tempo change. Album runs that stay gapless (the rule in <code>AutomixEngine</code>) are shown in grey, so you can see why there's no crossfade.</li>
+        <li>Tapping a seam opens a small sheet to change the style for that one transition or cut it to a hard switch.</li>
+        <li>Each row shows its source, which matters when one queue mixes four services.</li>
+        <li>Drag handles on the right, swipe left to remove. The red delete block in <code>QueueScreen</code> is replaced by the standard swipe reveal.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="screen">
+    <div class="phone"><div class="scr">
+      <div class="sb"><span>21:14</span><span class="r"><i></i></span></div>
+      <div class="body">
+        <div class="hdr"><span class="t-display">Library</span><span class="row" style="gap:14px"><svg class="ic"><use href="#i-search"/></svg><svg class="ic"><use href="#i-plus"/></svg><span class="avatar"><svg class="ic" style="width:18px;height:18px"><use href="#i-user"/></svg></span></span></div>
+        <div class="chips"><span class="chip">Playlists</span><span class="chip on">Albums</span><span class="chip">Artists</span><span class="chip">Downloaded</span></div>
+        <div class="hdr" style="color:var(--nt2);font-size:11.5px"><span class="row" style="gap:5px"><svg class="ic" style="width:16px;height:16px"><use href="#i-sort"/></svg>Recents · All sources</span><svg class="ic" style="width:16px;height:16px;color:var(--nt1)"><use href="#i-grid"/></svg></div>
+        <div class="libgrid">
+          <div><div class="cv cv-glass"></div><div class="cap"><b class="ell">Glasshouse</b><span class="t2">Ada Ferro · TIDAL</span></div></div>
+          <div><div class="cv cv-halcyon"></div><div class="cap"><b class="ell">Halcyon</b><span class="t2">Wren Hollow · Device</span></div></div>
+          <div><div class="cv cv-bus"></div><div class="cap"><b class="ell">Night Bus</b><span class="t2">Oslo Coast · YT Music</span></div></div>
+          <div><div class="cv cv-moon"></div><div class="cap"><b class="ell">Paper Moons</b><span class="t2">Mara Lind · Spotify</span></div></div>
+          <div><div class="cv cv-tide"></div><div class="cap"><b class="ell">Low Tide</b><span class="t2">Saltmarsh · TIDAL</span></div></div>
+          <div><div class="cv cv-rooms"></div><div class="cap"><b class="ell">Quiet Rooms</b><span class="t2">The Quiet Rooms</span></div></div>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="mini"><div class="row"><div class="cv cv-glass"></div><div class="grow"><b class="ell" style="display:block;font:600 12.5px var(--f-body)">Glasshouse</b><span class="t2" style="font-size:11px">Ada Ferro</span></div><svg class="ic f"><use href="#i-pause"/></svg><svg class="ic f" style="margin-left:6px"><use href="#i-next"/></svg></div><div class="prog"><i></i><em></em></div></div>
+        <div class="nav"><div><svg class="ic"><use href="#i-home"/></svg>Home</div><div><svg class="ic"><use href="#i-search"/></svg>Search</div><div class="on"><svg class="ic"><use href="#i-lib"/></svg>Library</div></div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Library</p><h3>One library, every source</h3>
+      <ul class="plain">
+        <li>Content type is the first filter, source is the second (in the sort row). This replaces the per-source <code>TidalEnvironment</code> / <code>LocalEnvironment</code> pages with one list fed by all of them.</li>
+        <li>Albums and playlists default to a two-column grid of large covers, with the glass dock floating over them as you scroll. The list view (toggle at the top right) stays for long collections and shows a small mono tag for each item's source. Petal playlists (local, mixing any sources) get their own tag.</li>
+        <li><b>Liked songs</b> merges favourites from every source into one playlist.</li>
+        <li>Downloads gets a pinned row and a filter chip, so the separate Downloads screen becomes a filtered view.</li>
+        <li>A service that isn't signed in shows a single row that links to Connections, instead of a full-page sign-in state.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ALBUM (Paper) -->
+  <div class="screen">
+    <div class="phone"><div class="scr paper">
+      <div class="layer bleed pfade cv-halcyon" style="height:400px"></div>
+      <div class="sb" style="color:#fff"><span>09:02</span><span class="r"><i></i></span></div>
+      <div class="body alb" style="gap:12px">
+        <div class="hdr"><span class="gbtn g"><svg class="ic"><use href="#i-back"/></svg></span><span class="gbtn g"><svg class="ic f"><use href="#i-more"/></svg></span></div>
+        <div style="height:196px"></div>
+        <div><h4 style="font-size:30px;line-height:1">Halcyon</h4><p style="font:600 14px var(--f-body);color:var(--pdye);margin-top:2px">Wren Hollow</p><p class="mono t2" style="margin-top:4px">Album · 2025 · 9 songs · 38 min · FLAC 16/44.1</p></div>
+        <div class="actions"><svg class="ic"><use href="#i-heart"/></svg><svg class="ic"><use href="#i-dl"/></svg><svg class="ic"><use href="#i-shuffle"/></svg><span class="btn-play"><svg class="ic f"><use href="#i-play"/></svg></span></div>
+        <div>
+          <div class="trk on"><span class="n">1</span><div><b>Halcyon</b><span class="t2" style="font-size:11.5px">Wren Hollow</span></div><span class="mono t3">4:12</span></div>
+          <div class="trk"><span class="n">2</span><div><b>Harbour Light</b><span class="t2" style="font-size:11.5px">Wren Hollow</span></div><span class="mono t3">3:48</span></div>
+          <div class="trk"><span class="n">3</span><div><b>Kingfisher</b><span class="t2" style="font-size:11.5px">Wren Hollow, Saltmarsh</span></div><span class="mono t3">5:01</span></div>
+          <div class="trk"><span class="n">4</span><div><b>Low Water</b><span class="t2" style="font-size:11.5px">Wren Hollow</span></div><span class="mono t3">3:27</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Album and playlist · shown in the Paper theme</p><h3>The cover is the header</h3>
+      <ul class="plain">
+        <li>The cover fills the full width and runs under the status bar, then fades into the page. Today's <code>ArtHeaderScreen</code> shows a framed cover with the title centred below it. The title now sits left-aligned on the bottom of the art, and long titles wrap instead of being auto-shrunk.</li>
+        <li>Back and more are glass circles, so they stay readable on any cover. On scroll, the cover moves up at half speed and a glass top bar with the album title fades in.</li>
+        <li>One round play button in the dye. Like, download and shuffle are plain icons. Today's full-width Play pill and two glass circles compete with each other.</li>
+        <li>The meta line uses the mono face and includes real quality from the source.</li>
+        <li>The current track is marked in the dye. Download state per row moves into the row's more menu, with a small icon only when downloaded.</li>
+        <li>Paper is the light theme: same structure, deep orchid as the accent so contrast holds on white.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="screen">
+    <div class="phone"><div class="scr">
+      <div class="sb"><span>21:14</span><span class="r"><i></i></span></div>
+      <div class="body">
+        <div class="field"><svg class="ic"><use href="#i-search"/></svg><b>glass</b></div>
+        <div class="chips"><span class="chip on">Top</span><span class="chip">Songs</span><span class="chip">Albums</span><span class="chip">Artists</span><span class="chip">Playlists</span></div>
+        <div class="top"><div class="cv cv-glass"></div><div class="grow"><span class="mono t3">Artist</span><b style="display:block;font:700 18px/1.15 var(--f-display)">Ada Ferro</b><span class="t2" style="font-size:11.5px">On TIDAL, Spotify, YT Music</span></div></div>
+        <div class="sec"><span class="t-title">Songs</span></div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div class="lrow"><div class="cv cv-glass" style="width:42px;height:42px"></div><div class="grow"><b class="ell">Glasshouse</b><span class="sub">Ada Ferro</span><div class="dup">TIDAL FLAC · also on 2 more</div></div><svg class="ic f t2"><use href="#i-more"/></svg></div>
+          <div class="lrow"><div class="cv cv-tide" style="width:42px;height:42px"></div><div class="grow"><b class="ell">Glass Coast</b><span class="sub">Saltmarsh</span><div class="dup">Device FLAC</div></div><svg class="ic f t2"><use href="#i-more"/></svg></div>
+          <div class="lrow"><div class="cv cv-static" style="width:42px;height:42px"></div><div class="grow"><b class="ell">Breaking Glass (live)</b><span class="sub">The Quiet Rooms</span><div class="dup">YT Music · Opus 160</div></div><svg class="ic f t2"><use href="#i-more"/></svg></div>
+          <div class="lrow"><div class="cv cv-moon" style="width:42px;height:42px"></div><div class="grow"><b class="ell">Glass Eyes</b><span class="sub">Mara Lind</span><div class="dup">Spotify · Ogg 160</div></div><svg class="ic f t2"><use href="#i-more"/></svg></div>
+        </div>
+      </div>
+      <div class="dock"><div class="nav"><div><svg class="ic"><use href="#i-home"/></svg>Home</div><div class="on"><svg class="ic"><use href="#i-search"/></svg>Search</div><div><svg class="ic"><use href="#i-lib"/></svg>Library</div></div></div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Search</p><h3>One answer per song</h3>
+      <ul class="plain">
+        <li>Results from all sources are merged. When the same song exists on several services, it shows once, playing from the best available source, with “also on 2 more” underneath. The source and quality picks live in the row's menu.</li>
+        <li>Type chips (Top, Songs, Albums, Artists, Playlists) replace the per-type shelves.</li>
+        <li>Empty state lists recent searches and recently played artists. “Find your next favourite.” goes.</li>
+        <li>A source that fails shows one inline line under the chips, rather than an error block per source.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="screen">
+    <div class="phone"><div class="scr">
+      <div class="sb"><span>21:14</span><span class="r"><i></i></span></div>
+      <div class="body" style="gap:18px">
+        <div class="hdr"><svg class="ic"><use href="#i-back"/></svg><span class="grow t-title" style="font-size:19px">Settings</span></div>
+        <div class="grp"><h5>Connections</h5>
+          <div class="srow"><span class="dot" style="background:var(--b-mid)"></span><div class="grow"><b style="font-weight:600">TIDAL</b><div class="mono t3">Signed in · Max quality</div></div><svg class="ic t3" style="transform:rotate(-90deg)"><use href="#i-down"/></svg></div>
+          <div class="srow"><span class="dot" style="background:var(--b-mid)"></span><div class="grow"><b style="font-weight:600">Spotify</b><div class="mono t3">Signed in · Free</div></div><svg class="ic t3" style="transform:rotate(-90deg)"><use href="#i-down"/></svg></div>
+          <div class="srow"><span class="dot" style="background:var(--b-mid)"></span><div class="grow"><b style="font-weight:600">YT Music</b><div class="mono t3">Ready, no sign-in needed</div></div><svg class="ic t3" style="transform:rotate(-90deg)"><use href="#i-down"/></svg></div>
+          <div class="srow"><span class="dot" style="background:var(--nt3)"></span><div class="grow"><b style="font-weight:600">Deezer</b><div class="mono t3">Not signed in</div></div><span style="color:var(--dye-lt);font-weight:600;font-size:12px">Sign in</span></div>
+        </div>
+        <div class="grp" style="gap:12px"><h5>AutoMix</h5>
+          <div class="row"><svg class="ic" style="color:var(--dye-lt)"><use href="#i-seam"/></svg><b class="grow" style="font-weight:600">Mix between songs</b><span class="switch"></span></div>
+          <div class="seg"><span>Clean</span><span>Reverb</span><span>Stutter</span><span class="on">Adaptive</span></div>
+          <div><div class="hdr"><span class="t2" style="font-size:12px">Longest overlap</span><span class="mono">12.0 s</span></div><div class="slider"><i></i><b></b><em></em></div></div>
+          <div class="row"><span class="grow t2" style="font-size:12px">Keep albums gapless</span><span class="switch"></span></div>
+          <div class="mono t3">Engine: BridgeFX HAL v3 · attached</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Settings</p><h3>Split the 1,189-line screen</h3>
+      <ul class="plain">
+        <li>Top level is a short list: Connections, Playback and AutoMix, Downloads and upscaling, Device Link, Appearance, About. Each opens its own page.</li>
+        <li>Connections use a status dot and a row, not a card with a pink pill per service. Sign-in flows (pairing code, web login) stay as they are and open from the row.</li>
+        <li>AutoMix style is a segmented control naming the four HAL styles. The engine line says plainly whether the BridgeFX HAL is attached or the internal mixer is running.</li>
+        <li>Appearance holds the dye picker and theme (System, Night, Paper).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">06 · Avoiding the generated look</p>
+  <h2>What gets removed, and what replaces it</h2>
+  <div class="tells">
+    <div><s>Sparkle icon for AutoMix</s><span>Crossfade-curve seam glyph, drawn for this app</span></div>
+    <div><s>Violet-to-purple gradient buttons (<code>accentBrush</code>)</s><span>Solid dye fill, used on two things only</span></div>
+    <div><s>Neon edge glow in six saturated colours (<code>ChromaticAura</code>)</s><span>Sleeve-over-sleeve slide and background colour crossfade</span></div>
+    <div><s>Letter-spaced uppercase eyebrows</s><span>Sentence-case section titles; mono only for real data</span></div>
+    <div><s>“All your music. One little world.” · “A little more of what you love.”</s><span>Plain labels: “Up next”, “Recently added”, empty states that say what to do</span></div>
+    <div><s>Time-of-day greeting</s><span>The page opens on things to play</span></div>
+    <div><s>Same rounded card with a translucent border around everything</s><span>Glass only where something floats over art or scrolling content; lists sit on the page</span></div>
+    <div><s>Generic blurred purple blobs as backgrounds</s><span>Every blur comes from the actual cover, so no two albums look the same</span></div>
+    <div><s>Concentric-circle placeholder art and the “♫” glyph</s><span>Placeholder sleeve: album initial on the source's dye</span></div>
+    <div><s>Everything centred on detail pages</s><span>Left-aligned headers with a clear reading line</span></div>
+    <div><s>Single rounded face for everything</s><span>Three faces with distinct jobs, including mono for BPM, key and bitrate</span></div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">07 · Implementation</p>
+  <h2>Order of work</h2>
+  <div class="phases">
+    <div class="phase"><span class="kicker">Phase 1<br>Foundations</span><div><p>New <code>ui/theme/Tokens.kt</code> with colour roles (night/paper surfaces, text levels, dye, mix bands), <code>PetalShape</code>, spacing and motion specs. Rework <code>PetalPalette</code> into a dye + artwork palette, keeping <code>fromArtwork</code>. Bundle Schibsted Grotesk, Instrument Sans and IBM Plex Mono in <code>res/font</code> and rebuild <code>PetalTypography</code>. Draw the stroke icon set as vector drawables. Add Haze and a <code>PetalGlass</code> modifier with the three levels and the solid fallback, plus a cached low-resolution blurred-sleeve loader. Replace all 118 colour literals with tokens. No layout changes yet, so this lands safely on its own.</p></div></div>
+    <div class="phase"><span class="kicker">Phase 2<br>Shell</span><div><p><code>AppRoot.kt</code>: Home / Search / Library tabs, profile button to Settings, mini-player with progress hairline and cue tick, long-press opens Up Next. Split <code>HomeScreen</code> so Home and Library are separate composables.</p></div></div>
+    <div class="phase"><span class="kicker">Phase 3<br>Player</span><div><p><code>NowPlayingScreen.kt</code> layout, merged repeat, seam toggle, cue notch on <code>PetalSeekBar</code> (reads <code>transitionStartMs</code>), restyled <code>MixWaveform</code>, sleeve slide during blends. Delete <code>ChromaticAura.kt</code> and the unused <code>PetalBloom.kt</code>. <code>QueueScreen</code> as a sheet with seam rows. This needs a per-pair transition preview from <code>AutomixEngine</code>; where none exists yet, the seam row shows the style and fade length from settings.</p></div></div>
+    <div class="phase"><span class="kicker">Phase 4<br>Library and detail</span><div><p>Unified library model merging the per-source environments, Liked songs across sources, Downloads as a filter. <code>ArtHeader.kt</code> becomes the left-aligned header for album, artist and playlist.</p></div></div>
+    <div class="phase"><span class="kicker">Phase 5<br>Search and settings</span><div><p>Merged and de-duplicated search results (match on ISRC where the source gives it, else normalised title + artist + duration). Settings split into sub-pages.</p></div></div>
+    <div class="phase"><span class="kicker">Phase 6<br>Home extras, desktop</span><div><p>Mix card generator. Port tokens to <code>desktop/.../ui/theme/Palette.kt</code>, ideally by moving tokens into a shared module both targets read.</p></div></div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">08 · Decisions needed</p>
+  <h2>Questions for you</h2>
+  <div class="qs read">
+    <div><b>Default dye.</b> Orchid matches the launcher icon but is loud. Twilight or Amethyst would be calmer. Or should the default be System (Material You)?</div>
+    <div><b>How much glass?</b> The mockups use moderate blur with a fairly dark tint. Clearer glass shows more of the cover but needs more tint behind small text. A strength setting in Appearance is possible.</div>
+    <div><b>Light theme in the first release?</b> Paper doubles visual QA. It could follow in a later release.</div>
+    <div><b>Three tabs or four?</b> This proposal uses three. A fourth for Downloads would suit heavy offline use.</div>
+    <div><b>Mix card on Home.</b> Ship it with the redesign, or after?</div>
+    <div><b>Fonts.</b> Comfortable moving off Rubik? Bundling three families adds a few hundred KB of font files to the APK.</div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var svg=document.getElementById('mixwave'); if(!svg) return;
+  var NS='http://www.w3.org/2000/svg', W=256, H=132, mid=66, play=0.46, n=64;
+  function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+  var s=7; function rnd(){s=(s*9301+49297)%233280;return s/233280;}
+  // beat grid
+  for(var b=0;b<=8;b++){var x=b*W/8; el('line',{x1:x,x2:x,y1:4,y2:H-4,stroke:'rgba(240,232,255,'+(b%4===0?.18:.07)+')','stroke-width':.6});}
+  el('line',{x1:0,x2:W,y1:mid,y2:mid,stroke:'rgba(240,232,255,.15)','stroke-width':.6});
+  // lanes
+  for(var i=0;i<n;i++){
+    var t=i/(n-1), x=i*W/n+1, bw=W/n-1.4;
+    var beat=(i%8===0)?1:(i%4===0?.8:.55);
+    var out=(1-t*.85)*(.45+.55*rnd())*beat, inc=(.15+t*.85)*(.45+.55*rnd())*beat;
+    var past=t<=play;
+    el('rect',{x:x,y:mid-2-out*54,width:bw,height:out*54,rx:.8,fill:past?'rgba(255,236,240,.85)':'rgba(255,236,240,.28)'});
+    el('rect',{x:x,y:mid+2,width:bw,height:inc*54,rx:.8,fill:past?'rgba(232,211,255,.85)':'rgba(232,211,255,.28)'});
+  }
+  // band handovers, drawn only up to the playhead (history, no prediction)
+  var bands=[['--b-sub',.18,.10],['--b-bass',.30,.06],['--b-mid',.12,.16],['--b-high',.05,.20]];
+  var cs=getComputedStyle(document.documentElement);
+  bands.forEach(function(bd){
+    var d='', start=bd[1], w=bd[2];
+    for(var k=0;k<=40;k++){
+      var t=k/40*play, g=1/(1+Math.exp(-(t-start)/(w*.35)));
+      d+=(k?'L':'M')+(t*W).toFixed(1)+' '+(10+g*(H-20)).toFixed(1);
+    }
+    el('path',{d:d,fill:'none',stroke:cs.getPropertyValue(bd[0]).trim(),'stroke-width':1.6,'stroke-linecap':'round'});
+  });
+  el('line',{x1:play*W,x2:play*W,y1:0,y2:H,stroke:'#fff','stroke-width':1.4});
+})();
+</script>

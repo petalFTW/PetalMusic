@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- petalOS Music "Compact Ribbon" mark, Orchid palette (from the logo pack's
+     svg/gradients/ribbon-orchid.svg). Paths keep the pack's concept-board
+     coordinates; the outer group fits them inside the adaptive-icon safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:scaleX="0.072" android:scaleY="0.072" android:translateX="18.11" android:translateY="16.38">
+        <!-- underside -->
+        <path android:pathData="M643,426 C622,470 578,514 519,535 L519,591 C521,640 513,686 501,722 C544,678 604,653 672,621 C743,588 793,565 799,521 C795,488 760,467 715,451 C687,441 665,433 643,426 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="567" android:startY="415" android:endX="748" android:endY="643">
+                    <item android:offset="0" android:color="#FF42005F" />
+                    <item android:offset="0.45" android:color="#FF8A00B7" />
+                    <item android:offset="0.8" android:color="#FFD90BF4" />
+                    <item android:offset="1" android:color="#FFEE44FF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- stem + seed -->
+        <path android:pathData="M458,282 C472,306 493,327 520,346 L520,591 C521,681 494,765 443,820 C386,881 276,888 208,858 C193,851 186,843 186,823 C181,766 198,704 237,656 C282,600 350,579 415,578 C447,578 458,564 458,533 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="419" android:startY="300" android:endX="426" android:endY="900">
+                    <item android:offset="0" android:color="#FFFFC1FF" />
+                    <item android:offset="0.3" android:color="#FFEE44FF" />
+                    <item android:offset="0.65" android:color="#FFD90BF4" />
+                    <item android:offset="1" android:color="#FF8A00B7" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- seed highlight -->
+        <path android:pathData="M458,282 C460,405 462,506 460,566 C462,608 455,640 437,668 C390,737 281,760 189,838 C182,816 183,785 188,759 C198,716 213,686 237,656 C282,600 350,579 415,578 C447,578 458,564 458,533 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="264" android:startY="593" android:endX="441" android:endY="786">
+                    <item android:offset="0" android:color="#F7FFC1FF" />
+                    <item android:offset="0.43" android:color="#B3FFC1FF" />
+                    <item android:offset="1" android:color="#2EEE44FF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- stem shine: elliptical glow clipped to the stem -->
+        <group>
+            <clip-path android:pathData="M458,282 C472,306 493,327 520,346 L520,591 C521,681 494,765 443,820 C386,881 276,888 208,858 C193,851 186,843 186,823 C181,766 198,704 237,656 C282,600 350,579 415,578 C447,578 458,564 458,533 Z" />
+            <group android:pivotX="470" android:pivotY="446" android:scaleX="0.22" android:scaleY="1.25">
+                <path android:pathData="M318,446 A152,152 0 1,0 622,446 A152,152 0 1,0 318,446 Z">
+                    <aapt:attr name="android:fillColor">
+                        <gradient android:type="radial" android:centerX="470" android:centerY="446" android:gradientRadius="152">
+                            <item android:offset="0" android:color="#D9FFC1FF" />
+                            <item android:offset="1" android:color="#00EE44FF" />
+                        </gradient>
+                    </aapt:attr>
+                </path>
+            </group>
+        </group>
+        <!-- ribbon face -->
+        <path android:pathData="M457,157 C469,159 480,168 497,177 C557,206 630,227 697,265 C771,307 814,388 812,457 C812,483 806,507 799,521 C795,488 760,467 715,451 C653,428 610,422 562,401 C510,381 473,360 450,325 C428,291 425,249 431,210 C436,181 447,157 457,157 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="452" android:startY="166" android:endX="733" android:endY="537">
+                    <item android:offset="0" android:color="#FFFFC1FF" />
+                    <item android:offset="0.4" android:color="#FFEE44FF" />
+                    <item android:offset="1" android:color="#FFD90BF4" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- flag highlight -->
+        <path android:pathData="M457,157 C469,159 480,168 497,177 C557,206 630,227 697,265 C771,307 814,388 812,457 C812,483 806,507 799,521 C787,459 738,414 680,374 C611,327 536,270 491,217 C477,200 464,180 457,157 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="475" android:startY="155" android:endX="790" android:endY="513">
+                    <item android:offset="0" android:color="#F5FFC1FF" />
+                    <item android:offset="0.58" android:color="#B3FFC1FF" />
+                    <item android:offset="1" android:color="#47FFC1FF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+    </group>
+</vector>

@@ -1,0 +1,23 @@
+// PetalMusic — bridgefx² : the petalOS music player.
+// Material 3 app built with Gradle; integrated into the ROM as a prebuilt.
+// Rebuild: ./gradlew :app:signPetal (rom flavor, platform-signed into prebuilt/).
+// SPDX-License-Identifier: Apache-2.0
+
+android_app_import {
+    name: "PetalMusic",
+    owner: "rab1d",
+    apk: "prebuilt/app-release.apk",
+    certificate: "platform", // platform signature => hidden-API exempt => BridgeFX attach works
+    privileged: false,
+    dex_preopt: {
+        enabled: true,
+    },
+}
+
+// When switching to a full source build inside the tree, drop the Gradle
+// prebuilts into static libs (compose BOM + media3 + librespot/NPE jars) and
+// replace this module with an android_app {} block. The app expects:
+//   - the BridgeFX HAL effect from hardware/bridge (v3 diagnostics) to be
+//     registered in audio_effects_config.xml with UUID
+//     c105f001-b2d5-4a19-8e77-1c5f0b31a5d5
+//   - optionally hardware/bridge/controller for other apps' sessions.

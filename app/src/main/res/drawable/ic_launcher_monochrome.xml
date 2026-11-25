@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon silhouette of the Compact Ribbon mark (svg/monochrome). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:scaleX="0.072" android:scaleY="0.072" android:translateX="18.11" android:translateY="16.38">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M643,426 C622,470 578,514 519,535 L519,591 C521,640 513,686 501,722 C544,678 604,653 672,621 C743,588 793,565 799,521 C795,488 760,467 715,451 C687,441 665,433 643,426 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M458,282 C472,306 493,327 520,346 L520,591 C521,681 494,765 443,820 C386,881 276,888 208,858 C193,851 186,843 186,823 C181,766 198,704 237,656 C282,600 350,579 415,578 C447,578 458,564 458,533 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M457,157 C469,159 480,168 497,177 C557,206 630,227 697,265 C771,307 814,388 812,457 C812,483 806,507 799,521 C795,488 760,467 715,451 C653,428 610,422 562,401 C510,381 473,360 450,325 C428,291 425,249 431,210 C436,181 447,157 457,157 Z" />
+    </group>
+</vector>

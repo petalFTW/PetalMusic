@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- petalOS-only entries, merged over src/main. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Clears BridgeController's petal_bridge_automix_pkg on shutdown. -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    <application>
+        <!-- Direct Qualcomm HTP access; optional so CPU-only devices still work. -->
+        <uses-native-library android:name="libcdsprpc.so" android:required="false" />
+
+        <service
+            android:name=".data.downloads.upscale.NpuPreparationService"
+            android:exported="false"
+            android:process=":npu_prepare" />
+    </application>
+</manifest>

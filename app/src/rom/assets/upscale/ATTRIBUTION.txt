@@ -1,0 +1,4 @@
+Apollo by JusperLee and contributors: https://github.com/JusperLee/Apollo
+Licensed under CC BY-SA 4.0; see Apollo-LICENSE.txt.
+PetalMusic splits the waveform export into FFT and spectral stages and
+rewrites reciprocal/norm operations using equivalent elementary math.

@@ -1,0 +1,477 @@
+<title>AutoMix Transition Study</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an engineering study. Reading column for findings; wide automation diagrams in their own scroll boxes; phones beside notes. */
+:root{
+  --bg:#F7F3F6; --fg:#1E1622; --muted:#6C5E70; --rule:#E2D7E0; --panel:#EFE7ED; --accent:#8A00B7; --accent-soft:#F3DDF8;
+  --vol:#2A2030; --low:#6A3FD0; --mid:#12806B; --high:#B87400; --win:rgba(138,0,183,.06); --grid:rgba(30,22,34,.10);
+  --n0:#120D16; --n1:#1B1420; --n2:#261D2C; --nline:rgba(246,232,250,.09); --nt1:#F6EFF7; --nt2:#B9AABD; --nt3:#7E7083;
+  --dye:#EE44FF; --dye-lt:#FFC1FF; --on-dye:#190D22;
+  --f-display:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Instrument Sans","Segoe UI",Roboto,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#100B13; --fg:#F2EBF3; --muted:#A797AA; --rule:#2B2131; --panel:#1A131E; --accent:#F59BFF; --accent-soft:#2E1838;
+  --vol:#EFE6F1; --low:#9C8BFF; --mid:#4CC9A6; --high:#F2B84B; --win:rgba(245,155,255,.07); --grid:rgba(242,235,243,.10); color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#100B13; --fg:#F2EBF3; --muted:#A797AA; --rule:#2B2131; --panel:#1A131E; --accent:#F59BFF; --accent-soft:#2E1838;
+  --vol:#EFE6F1; --low:#9C8BFF; --mid:#4CC9A6; --high:#F2B84B; --win:rgba(245,155,255,.07); --grid:rgba(242,235,243,.10); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.read{max-width:68ch}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(2.2rem,5.5vw,3.6rem);line-height:1.02;font-weight:800;letter-spacing:-.03em}
+h2{font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.1;font-weight:700}
+h3{font-size:1.2rem;line-height:1.3;font-weight:700}
+p{margin:0}
+.lede{font-size:1.18rem;line-height:1.55;max-width:62ch}
+.muted{color:var(--muted)}
+.kicker{font-family:var(--f-data);font-size:.78rem;color:var(--muted)}
+.data{font-family:var(--f-data);font-size:.84rem}
+code{font-family:var(--f-data);font-size:.86em;background:var(--panel);padding:.1em .35em;border-radius:4px}
+section{padding-top:72px;display:flex;flex-direction:column;gap:20px}
+ul.plain{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:7px}
+ul.plain li::marker{color:var(--muted)}
+.facts{display:flex;flex-wrap:wrap;gap:8px 28px}
+.facts div{display:flex;flex-direction:column}
+.facts b{font:700 1.4rem/1.2 var(--f-display)}
+.find{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 36px}
+.find div{border-top:1px solid var(--rule);padding:16px 0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.find b{font-family:var(--f-display);font-size:1.05rem}
+.figure{display:flex;flex-direction:column;gap:10px}
+.scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--bg)}
+.scroll svg{display:block;min-width:620px;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font:400 .78rem var(--f-data);color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:900px){.pair{grid-template-columns:1fr}}
+.pair>*{min-width:0}
+.tag{display:inline-block;font:500 .72rem/1 var(--f-data);padding:4px 7px;border-radius:4px;background:var(--panel);color:var(--muted)}
+.tag.ref{background:var(--accent-soft);color:var(--accent)}
+.tbl{overflow-x:auto;border-top:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:.93rem}
+th,td{text-align:left;vertical-align:top;padding:11px 14px 11px 0;border-bottom:1px solid var(--rule)}
+th{font:500 .76rem var(--f-data);color:var(--muted)}
+td:first-child{font-weight:600}
+.change{display:grid;grid-template-columns:200px 1fr;gap:24px;padding:20px 0;border-top:1px solid var(--rule)}
+.change>*{min-width:0}
+.change .where{font:400 .8rem/1.5 var(--f-data);color:var(--muted);overflow-wrap:anywhere}
+@media (max-width:640px){.change{grid-template-columns:1fr;gap:6px}}
+.note{background:var(--panel);border-radius:10px;padding:16px 18px;font-size:.95rem}
+/* phones */
+.screen{display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:start;padding:36px 0;border-top:1px solid var(--rule)}
+.screen .notes{display:flex;flex-direction:column;gap:12px;max-width:60ch;min-width:0}
+@media (max-width:700px){.screen{grid-template-columns:1fr;justify-items:center}.screen .notes{justify-self:stretch}}
+.phone{width:300px;max-width:100%;height:640px;border-radius:38px;padding:8px;background:#060407;box-shadow:0 24px 60px -24px rgba(30,10,40,.45)}
+.scr{position:relative;width:100%;height:100%;border-radius:31px;overflow:hidden;background:var(--n0);color:var(--nt1);font:13px/1.35 var(--f-body);display:flex;flex-direction:column}
+.scr>.layer{position:absolute;z-index:0}
+.scr>:not(.layer){position:relative;z-index:1}
+.backdrop{inset:-60px;filter:blur(38px) saturate(1.3);transform:scale(1.25)}
+.tint{inset:0;background:rgba(14,6,12,.45)}
+.sb{display:flex;justify-content:space-between;padding:10px 22px 4px;font:500 11px var(--f-data);flex:none}
+.sheet{flex:1;margin-top:28px;border-radius:22px 22px 0 0;background:rgba(18,13,22,.55);backdrop-filter:blur(30px) saturate(150%);-webkit-backdrop-filter:blur(30px) saturate(150%);border-top:1px solid rgba(255,255,255,.12);padding:8px 16px 0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.body{flex:1;padding:6px 16px 0;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.grab{width:36px;height:4px;border-radius:4px;background:rgba(255,255,255,.3);align-self:center;flex:none}
+.ttl{font:700 17px/1.2 var(--f-display);letter-spacing:-.01em}
+.mono{font:400 10.5px/1.35 var(--f-data)}
+.t2{color:var(--nt2)}.t3{color:var(--nt3)}
+.row{display:flex;align-items:center;gap:10px;min-width:0}
+.grow{flex:1;min-width:0}
+.cv{border-radius:4px;flex:none;width:40px;height:40px}
+.cv-a{background:linear-gradient(#1a1a1a 0 55%,#3b3b3b 55%)}
+.cv-b{background:radial-gradient(circle at 50% 60%,#2b2b2b 0 30%,transparent 31%),#0c0c0c}
+.cv-c{background:linear-gradient(135deg,#7b1e5a,#2a0b23)}
+.mini-lanes{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px}
+.mini-lanes svg{display:block;width:100%;height:auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);font:500 11.5px var(--f-body);color:var(--nt2)}
+.chip.on{background:#fff;color:var(--n0);border-color:transparent}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12px}
+.kv span:nth-child(odd){color:var(--nt3);font:400 10.5px/1.6 var(--f-data)}
+.pill{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:999px;background:var(--dye);color:var(--on-dye);font:600 12.5px var(--f-body)}
+.gpill{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);font:600 12.5px var(--f-body)}
+.ic{width:16px;height:16px;fill:currentColor}
+.grp h5{margin:0 0 6px;font:500 10.5px var(--f-data);color:var(--nt3)}
+.opt{display:flex;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--nline);align-items:flex-start}
+.opt.on{border-color:var(--dye);background:rgba(238,68,255,.08)}
+.radio{width:16px;height:16px;border-radius:50%;border:1.6px solid var(--nt3);flex:none;margin-top:2px;position:relative}
+.opt.on .radio{border-color:var(--dye)}
+.opt.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--dye)}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--nline)}
+.switch{width:34px;height:20px;border-radius:999px;background:var(--dye);position:relative;flex:none}
+.switch::after{content:"";position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--on-dye)}
+.switch.off{background:var(--n2)}.switch.off::after{right:auto;left:3px;background:var(--nt3)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<main class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:16px">
+  <p class="kicker">AutoMix v2 · study of two reference transitions · 22 Nov 2026</p>
+  <h1>What the reference mixes do that v2 doesn't</h1>
+  <p class="lede">Both clips are recordings of an 8-bar transition editor playing a finished mix. I measured their audio, read the automation curves frame by frame, and compared them with what <code>DjComposer</code> would write for the same pairs. The references are simpler than v2. They do fewer things, do them earlier, and line the incoming track's arrival up with the outgoing track's phrase.</p>
+  <div class="facts">
+    <div><span class="kicker">Clip A</span><b>The Hills → I KNOW?</b><span class="data muted">113 → 118 BPM · 5A → 7B · 8 bars</span></div>
+    <div><span class="kicker">Clip B</span><b>Starships → One More Time</b><span class="data muted">125 → 126 BPM · 10A → 10B · 8 bars</span></div>
+  </div>
+</header>
+
+<section>
+  <p class="kicker">Summary</p>
+  <h2>Five things both clips do</h2>
+  <div class="find">
+    <div><b>The incoming arrives on a phrase line</b><p class="muted">Clip A: I KNOW?'s beat and bass hit exactly on bar 8, which is where The Hills ends. Clip B: One More Time's full low end arrives on bar 4, the window's midpoint.</p></div>
+    <div><b>The incoming is at full volume from bar 0</b><p class="muted">Neither clip fades the incoming track in. All separation happens with EQ, and with one short volume move on the outgoing deck.</p></div>
+    <div><b>Only one bass at a time</b><p class="muted">Clip A overlaps over a beatless outro, so there's nothing to clash. Clip B kills the outgoing low end on bar 0, then ramps the incoming low end in over four bars.</p></div>
+    <div><b>The outgoing leaves early and plainly</b><p class="muted">Clip B fades Starships out over the half bar before bar 4, so bars 4–8 are the new track alone. No echo, no roll, no gate in either clip.</p></div>
+    <div><b>The incoming is conformed to the outgoing's tempo, and stays there</b><p class="muted">After the window, I KNOW? plays at about 113.9 BPM (native 118) and One More Time at about 124.7 (native 126). The song you're already hearing keeps its speed.</p></div>
+  </div>
+</section>
+
+<!-- CLIP A -->
+<section>
+  <p class="kicker">Clip A · outro over intro</p>
+  <h2>The Hills → I KNOW?</h2>
+  <div class="read"><p>The Hills' last bass hit ends just before the window opens. For eight bars, its beatless outro and I KNOW?'s beatless intro play together at full volume. The only automation is on The Hills' highs: cut on bar 0, brought back to unity by bar 4, which makes room for the incoming intro's top end as it enters. The Hills then plays to its own ending, and I KNOW?'s beat drops on that exact bar.</p></div>
+  <div class="figure">
+    <span class="tag ref">Reference · read from the clip</span>
+    <div class="scroll"><svg id="lanesA" viewBox="0 0 900 330" role="img" aria-label="Clip A automation lanes"></svg></div>
+  </div>
+  <div class="figure">
+    <span class="tag">Measured · band energy of the clip's audio, per half bar</span>
+    <div class="scroll"><svg id="energyA" viewBox="0 0 900 260" role="img" aria-label="Clip A band energy"></svg></div>
+    <div class="legend"><span><i style="background:var(--low)"></i>sub 20–60 Hz</span><span><i style="background:var(--vol)"></i>bass 60–200 Hz</span><span><i style="background:var(--mid)"></i>mid 800–3k Hz</span><span><i style="background:var(--high)"></i>high 3–12 kHz</span><span>dB relative to the clip's 95th percentile</span></div>
+  </div>
+  <div class="pair">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3>What the measurements show</h3>
+      <ul class="plain">
+        <li>Bass and sub sit 20–60 dB down for the whole window, then jump by about 15 dB in the half bar starting at bar 8. That's I KNOW?'s drop.</li>
+        <li>The high band falls 13 dB over bars 0–2 and recovers by bar 3. That matches the high-EQ curve (white line) on the outgoing deck.</li>
+        <li>Stereo width collapses at bar 8 (side/mid ratio from about −3 dB to −13 dB), which is consistent with a mono kick and bass entering.</li>
+        <li>Eighth-note onsets after the window are 0.263 s apart, a grid of 113.9 BPM. I KNOW? has been slowed about 3.5% to sit at The Hills' tempo, and it stays there.</li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3>What v2 would do with this pair</h3>
+      <ul class="plain">
+        <li>118 / 113 is a 4.4% difference. That's over <code>MAX_STRETCH = .04</code>, so <code>matched</code> is false and every blend family is skipped.</li>
+        <li>5A → 7B is two Camelot steps, so <code>clash()</code> returns true. The penalty is the same whether the overlap is a dense chorus or an ambient outro.</li>
+        <li>What's left are the cuts and <b>Intro wash</b>. With a beatless intro, Intro wash likely wins. It muffles the incoming (LPF .62), builds a rising high-pass on the outgoing, throws it into an echo on bar 8, and lets that echo ring for two more bars at 113 BPM over a 118 BPM beat.</li>
+        <li>Every non-blend family reserves a two-bar tail (<code>i + length + tail ≤ lastBar + 1</code>), so the drop can never land on the outgoing's actual last bar. The Hills' ending would be cut off.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="figure">
+    <span class="tag">v2 today · Intro wash, 8 bars, read from <code>DjComposer.build()</code> (not run)</span>
+    <div class="scroll"><svg id="lanesA2" viewBox="0 0 900 330" role="img" aria-label="v2 Intro wash automation lanes"></svg></div>
+  </div>
+</section>
+
+<!-- CLIP B -->
+<section>
+  <p class="kicker">Clip B · handoff by the midpoint</p>
+  <h2>Starships → One More Time</h2>
+  <div class="read"><p>On bar 0, Starships loses its low end and its highs. One More Time comes in at full volume with its highs open, its mids eased up from about 40%, and its low end ramping in a straight line until bar 4. Starships fades out over the half bar before bar 4. The second half of the window is the new track alone.</p></div>
+  <div class="figure">
+    <span class="tag ref">Reference · read from the clip</span>
+    <div class="scroll"><svg id="lanesB" viewBox="0 0 900 330" role="img" aria-label="Clip B automation lanes"></svg></div>
+  </div>
+  <div class="figure">
+    <span class="tag">Measured · band energy of the clip's audio, per half bar</span>
+    <div class="scroll"><svg id="energyB" viewBox="0 0 900 260" role="img" aria-label="Clip B band energy"></svg></div>
+    <div class="legend"><span><i style="background:var(--low)"></i>sub 20–60 Hz</span><span><i style="background:var(--vol)"></i>bass 60–200 Hz</span><span><i style="background:var(--mid)"></i>mid 800–3k Hz</span><span><i style="background:var(--high)"></i>high 3–12 kHz</span><span>dB relative to the clip's 95th percentile</span></div>
+  </div>
+  <div class="pair">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3>What the measurements show</h3>
+      <ul class="plain">
+        <li>Sub drops 31 dB on bar 0 (Starships' low end killed), then climbs steadily. Bass rises from −32 to −12 dB across bars 0–3.5, a straight ramp.</li>
+        <li>On bar 4, sub jumps another 21 dB, mids fall 3–5 dB and width narrows. Starships is gone and One More Time is at full strength.</li>
+        <li>From bar 4 onward every band is flat to within 2 dB. Nothing else happens in the second half.</li>
+        <li>Onsets after bar 4 give 124.7 BPM. One More Time (126) has been slowed to Starships' 125 and held.</li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3>What v2 would do with this pair</h3>
+      <ul class="plain">
+        <li>The tempos match (0.8%) and the keys don't clash, so a blend is chosen. Which blend depends on noise: Bass swap, Beat under the vocal, Filter blend and Hi-hat tease start within about a point of each other, while the seed jitter adds up to 1.5 and repeating the last family costs 1.2.</li>
+        <li>Bass swap, as built: the incoming is high-passed with its low end at zero, then the bass swaps <b>instantly</b> on bar 4.</li>
+        <li>The outgoing keeps some or all of its mids for bars 4–8 and leaves by one of three exits (echo, fade or high-pass) picked by the seed. A fill is picked at random too: roll, gate, drop-out, echo throw or none.</li>
+        <li>Starships, the track you're already hearing, is sped up 0.8% for the whole mix so that One More Time can stay native.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="figure">
+    <span class="tag">v2 today · Bass swap, 8 bars, high-pass exit, read from <code>DjComposer.build()</code> (not run)</span>
+    <div class="scroll"><svg id="lanesB2" viewBox="0 0 900 330" role="img" aria-label="v2 Bass swap automation lanes"></svg></div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Diagnosis</p>
+  <h2>Why v2 misses these</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Behaviour</th><th>References</th><th>v2 today</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td>Choosing the move</td><td>One obvious move for the material</td><td>Several families within a point of each other; seed jitter (up to 1.5 for blends, 2.2 for cuts) and the variety penalty decide</td><td class="data">DjComposer.compose</td></tr>
+      <tr><td>Decoration</td><td>None</td><td>Random fill on most blends, random exit style, echo tails on every cut</td><td class="data">build(), applyFill</td></tr>
+      <tr><td>Where the incoming arrives</td><td>Its first full bar lands on the outgoing's phrase line or last bar</td><td>Landing on a section is worth +1.2, about the same as the jitter; a 2-bar tail stops the drop landing on the outgoing's end</td><td class="data">entryScore, tail</td></tr>
+      <tr><td>Tempo</td><td>Incoming conformed to the outgoing and held</td><td>Outgoing sped to the incoming; blends refused above 4%</td><td class="data">MAX_STRETCH, Mix.speed</td></tr>
+      <tr><td>Key</td><td>Ignored when the overlap is sparse</td><td>Global Camelot clash penalty regardless of what overlaps</td><td class="data">clash(), keyClash</td></tr>
+      <tr><td>Bass</td><td>Outgoing killed at bar 0, incoming ramped over half the window</td><td>Held to the midpoint, then swapped in one instant</td><td class="data">BASS_SWAP lanes</td></tr>
+      <tr><td>Outgoing exit</td><td>Gone by the midpoint (B), or plays to its natural end (A)</td><td>Mids linger 4 more bars over the full incoming, then echo or filter out</td><td class="data">exitStyle 0–2</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <p class="kicker">Proposal</p>
+  <h2>Changes to v2</h2>
+  <div class="read"><p>Add two clean families that reproduce the references, make them the default, and stop letting noise choose between candidates. The current families stay available as a Creative style.</p></div>
+
+  <div class="change"><div><h3>1 · Overlay</h3><p class="where">DjComposer: new Family.OVERLAY</p></div><div style="display:flex;flex-direction:column;gap:10px">
+    <p>Used when the outgoing's last bars have no drums or bass, or the incoming's intro has none. Length L is the incoming intro length snapped to 4, 8 or 16 bars. The window is placed so that bar L is both the incoming's first full bar and the outgoing's last bar.</p>
+    <ul class="plain"><li>Incoming: full volume, all bands at unity from bar 0. No filters.</li><li>Outgoing: highs to zero on bar 0, back to unity by L/2. Plays to its own end. No echo, no tail.</li><li>Allowed with up to 6% tempo difference, because neither side has a beat during the overlap.</li></ul>
+  </div></div>
+  <div class="scroll"><svg id="lanesP1" viewBox="0 0 900 330" role="img" aria-label="Proposed overlay lanes"></svg></div>
+
+  <div class="change"><div><h3>2 · Handoff</h3><p class="where">DjComposer: new Family.HANDOFF</p></div><div style="display:flex;flex-direction:column;gap:10px">
+    <p>Used for beat-matched pairs where both sides have drums. The key moment is L/2, placed on an outgoing phrase line and on the incoming's first full bar.</p>
+    <ul class="plain"><li>Bar 0: outgoing low and high to zero. Incoming at full volume, highs at unity, mids at 0.4.</li><li>Bars 0 to L/2: incoming low ramps linearly to unity, mids ease up to unity.</li><li>L/2 − ½ bar to L/2: outgoing volume to zero. Bars L/2 to L: incoming only.</li><li>On bars where both vocals are present, incoming mids stay at 0.4 until L/2 (keeps v2's clash check).</li></ul>
+  </div></div>
+  <div class="scroll"><svg id="lanesP2" viewBox="0 0 900 330" role="img" aria-label="Proposed handoff lanes"></svg></div>
+
+  <div class="change"><div><h3>3 · Conform the incoming</h3><p class="where">DJPlanner.Plan.outgoingSpeed, Mix.speed, CrossfadePlayer</p></div><div><p>Play the incoming at the outgoing's tempo from its first sample and leave the outgoing untouched. After the outgoing has gone, hold the matched tempo (as both clips do). If the hold is more than 3% from native, glide back to native over 32 bars, which is about 0.1% per bar and inaudible with nothing to compare against. Raise the blend limit from 4% to 6% for Overlay only.</p></div></div>
+
+  <div class="change"><div><h3>4 · Score the landing, not the noise</h3><p class="where">DjComposer.compose, entryScore</p></div><div style="display:flex;flex-direction:column;gap:8px">
+    <ul class="plain">
+      <li>New landing term: +2.5 when the incoming's first full bar (drums ≥ .25 and energy ≥ .9 × body) falls on an outgoing 8-bar phrase line at or after its outro start; +3.0 when it falls on the outgoing's last bar; −1.5 when it lands mid-phrase.</li>
+      <li>Cap seed jitter at 0.25 for every family. It should only break ties.</li>
+      <li>Apply the variety penalty to cut families and fills only. A DJ who handoffs ten times in a row is doing it right.</li>
+      <li>Scale the key-clash penalty by how tonal the overlap is: the larger of the two decks' mean sustained chroma over the overlapping bars (from <code>ChromaEnvelope</code>). A beatless, sparse outro scores close to zero.</li>
+      <li>Let Overlay candidates end exactly at <code>lastBar + 1</code>, with no tail.</li>
+    </ul>
+  </div></div>
+
+  <div class="change"><div><h3>5 · Clean by default</h3><p class="where">PlaybackSettings, build(), applyFill</p></div><div><p>A new <b>Mix style</b> setting: <b>Clean</b> (default) allows Overlay, Handoff and Bass swap with no fills and the plain fade exit. <b>Creative</b> enables everything v2 has today: fills, echo and filter exits, Hi-hat tease and the cut families. Cuts remain the fallback in Clean when tempos or grids can't support a blend, using Filter fade only.</p></div></div>
+
+  <div class="change"><div><h3>6 · Measure it</h3><p class="where">tools/automix-bench, AutomixBench</p></div><div style="display:flex;flex-direction:column;gap:8px"><p>Add four numbers to the bench report for every planned pair, and record what the references score as the target:</p>
+    <div class="tbl"><table style="min-width:520px"><thead><tr><th>Metric</th><th>Clip A</th><th>Clip B</th></tr></thead><tbody>
+      <tr><td>Landing error: incoming's first full bar vs nearest outgoing phrase line</td><td class="data">0 beats</td><td class="data">0 beats</td></tr>
+      <tr><td>Bars with both decks' low end above −12 dB</td><td class="data">0</td><td class="data">0</td></tr>
+      <tr><td>Bars of outgoing audible after the incoming's first full bar</td><td class="data">0</td><td class="data">0</td></tr>
+      <tr><td>Tempo change applied to the outgoing</td><td class="data">0%</td><td class="data">0%</td></tr>
+    </tbody></table></div>
+    <p class="muted">Putting the full versions of these four tracks into <code>tools/automix-bench/songs</code> would let the bench check that v2 picks Overlay for A and Handoff for B.</p></div></div>
+</section>
+
+<section style="gap:0">
+  <p class="kicker">Mockups</p>
+  <h2 style="margin-bottom:8px">How this shows up in the app</h2>
+  <p class="read muted" style="margin-bottom:20px">These follow the Petal Music redesign: glass sheets over the sleeve, the seam glyph, mono for musical data. Covers are placeholders.</p>
+
+  <div class="screen">
+    <div class="phone"><div class="scr">
+      <div class="layer backdrop" style="background:radial-gradient(circle at 40% 40%,#3a3a3a,#0b0b0b)"></div><div class="layer tint"></div>
+      <div class="sb"><span>21:40</span><span>●</span></div>
+      <div class="sheet">
+        <span class="grab"></span>
+        <div class="row"><span class="ttl grow">Transition</span><span class="mono t3">bar 3 of 8</span></div>
+        <div class="row"><div class="cv cv-a"></div><div class="grow"><b style="display:block;font:600 13px var(--f-body)">The Hills</b><span class="mono t3">113 BPM · 5A · outro</span></div></div>
+        <div class="row"><div class="cv cv-b"></div><div class="grow"><b style="display:block;font:600 13px var(--f-body)">I KNOW?</b><span class="mono t3">118 → 113 BPM · 7B · intro</span></div></div>
+        <div class="mini-lanes"><svg id="miniA" viewBox="0 0 260 120" aria-label="Planned transition lanes"></svg></div>
+        <div class="kv">
+          <span>Move</span><span>Overlay · 8 bars</span>
+          <span>Drop</span><span>I KNOW? hits on bar 8, where The Hills ends</span>
+          <span>Tempo</span><span>I KNOW? held at 113 (−4.2%), returns over 32 bars</span>
+          <span>Key</span><span>5A → 7B, but the outro is sparse: no clash</span>
+        </div>
+        <div class="chips"><span class="chip">4 bars</span><span class="chip on">8 bars</span><span class="chip">16 bars</span></div>
+        <div class="chips"><span class="chip on">Overlay</span><span class="chip">Handoff</span><span class="chip">Cut</span></div>
+        <div class="row" style="gap:8px"><span class="pill"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5.2v13.6L19 12z"/></svg>Preview</span><span class="gpill">Reset to automatic</span></div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Transition sheet · opened from a seam in Up Next</p><h3>Shows the plan in the terms a DJ would use</h3>
+      <ul class="plain">
+        <li>The sheet explains what will happen and why: which move, where the drop lands, what happens to tempo and key. Everything comes from the plan <code>DjComposer</code> already writes to <code>automix.log</code>.</li>
+        <li>The lanes are the same four as the reference editor (volume, low, mid, high per deck), drawn small, with a playhead while the mix runs.</li>
+        <li>Length and move can be overridden for this pair. Petal remembers the override per track pair, which also gives you labelled examples to tune the scorer against.</li>
+        <li>Preview plays the eight bars from the start of the window without touching the queue.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="screen">
+    <div class="phone"><div class="scr">
+      <div class="sb"><span>21:41</span><span>●</span></div>
+      <div class="body">
+        <div class="row"><svg class="ic" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.8"><path d="M15 5l-7 7 7 7"/></svg><span class="ttl grow">AutoMix</span></div>
+        <div class="srow"><b class="grow" style="font-weight:600">Mix between songs</b><span class="switch"></span></div>
+        <div class="grp"><h5>Mix style</h5>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="opt on"><span class="radio"></span><div><b style="font-weight:600">Clean</b><p class="t2" style="font-size:11.5px;margin-top:2px">Overlays and handoffs on the phrase. No effects. Sounds like a careful DJ.</p></div></div>
+            <div class="opt"><span class="radio"></span><div><b style="font-weight:600">Creative</b><p class="t2" style="font-size:11.5px;margin-top:2px">Adds echo throws, filter builds, rolls, backspins and stutters.</p></div></div>
+          </div>
+        </div>
+        <div class="grp"><h5>Tempo</h5>
+          <div class="srow"><div class="grow"><b style="font-weight:600">Match the next song to this one</b><p class="t2" style="font-size:11.5px">The song playing keeps its speed</p></div><span class="switch"></span></div>
+          <div class="srow"><div class="grow"><b style="font-weight:600">Return to original tempo</b><p class="t2" style="font-size:11.5px">Slowly, after the mix</p></div><span class="switch"></span></div>
+        </div>
+        <div class="grp"><h5>Endings</h5>
+          <div class="srow"><div class="grow"><b style="font-weight:600">Let outros play out</b><p class="t2" style="font-size:11.5px">Drop the next song where this one ends</p></div><span class="switch"></span></div>
+        </div>
+        <span class="mono t3">Engine: dual deck · v2 · BridgeFX HAL attached</span>
+      </div>
+    </div></div>
+    <div class="notes">
+      <p class="kicker">Settings → Playback → AutoMix</p><h3>One choice instead of four styles</h3>
+      <ul class="plain">
+        <li>Clean and Creative replace the Clean / Reverb / Stutter / Adaptive style picker for the dual-deck engine. The HAL styles stay under Advanced for the BridgeFX path.</li>
+        <li>The tempo switches map to change 3. Turning off “Match the next song” restores today's behaviour (outgoing follows the incoming).</li>
+        <li>“Let outros play out” maps to the no-tail Overlay end and the +3.0 last-bar landing.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Method and limits</p>
+  <div class="note read" style="display:flex;flex-direction:column;gap:8px">
+    <p>Audio was taken from each clip with ffmpeg (AAC, 44.1 kHz, about 66 kbps) and analysed with a 4096-point STFT. The window position comes from tracking the green playhead at 10 fps: it moves 26.2 px/s in clip A and 27.1 px/s in B, and the window takes 16.9 s and 15.4 s, which is exactly 8 bars at 113 and 125 BPM. Tempo after each window comes from eighth-note onset spacing.</p>
+    <p>The editor doesn't label its lines. Reading them as blue = volume, yellow = low EQ, pink = mid EQ and white = high EQ, with the lane centre at unity, agrees with every band measurement above. The v2 diagrams are read from the code with the clips' BPM and keys, not produced by running the planner. That needs the full tracks in the bench.</p>
+    <p>Two clips are a small sample, both 8 bars and both on beat-matched or beatless material. They don't show how the reference handles 16-bar blends, vocal-over-vocal pairs or large tempo gaps.</p>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  function mk(svg,t,a,txt){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
+  function ease(b0,b1,v0,v1){var p=[];for(var i=0;i<=10;i++){var t=i/10,u=t*t*(3-2*t);p.push([b0+(b1-b0)*t,v0+(v1-v0)*u]);}return p;}
+  var ROWS=[['Vol','var(--vol)'],['Low','var(--low)'],['Mid','var(--mid)'],['High','var(--high)']];
+
+  function lanes(id,spec){
+    var svg=document.getElementById(id); if(!svg) return;
+    var W=900,L=96,R=16,T=26,rowH=22,gap=4,deckGap=34;
+    var d0=spec.domain[0],d1=spec.domain[1];
+    var x=function(b){return L+(b-d0)/(d1-d0)*(W-L-R);};
+    var H=T+2*(4*(rowH+gap)+22)+deckGap+28; svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    // window
+    mk(svg,'rect',{x:x(spec.win[0]),y:T-8,width:x(spec.win[1])-x(spec.win[0]),height:H-T-14,fill:'var(--win)'});
+    for(var b=Math.ceil(d0);b<=d1;b++){
+      mk(svg,'line',{x1:x(b),x2:x(b),y1:T-8,y2:H-22,stroke:'var(--grid)','stroke-width':b%4===0?1.2:.6});
+      mk(svg,'text',{x:x(b),y:H-8,'text-anchor':'middle','font-family':'IBM Plex Mono, monospace','font-size':11,fill:'var(--muted)'},String(b));
+    }
+    (spec.marks||[]).forEach(function(m){
+      mk(svg,'line',{x1:x(m.at),x2:x(m.at),y1:T-8,y2:H-22,stroke:'var(--accent)','stroke-width':1.6,'stroke-dasharray':'4 3'});
+      mk(svg,'text',{x:x(m.at)+5,y:T,'font-family':'IBM Plex Mono, monospace','font-size':11,fill:'var(--accent)'},m.label);
+    });
+    var y0=T+6;
+    spec.decks.forEach(function(dk,di){
+      mk(svg,'text',{x:0,y:y0+4,'font-family':'Schibsted Grotesk, sans-serif','font-weight':700,'font-size':13,fill:'var(--fg)'},dk.name);
+      var top=y0+14;
+      ROWS.forEach(function(r,ri){
+        var yb=top+ri*(rowH+gap)+rowH, yt=yb-rowH;
+        mk(svg,'text',{x:0,y:yb-6,'font-family':'IBM Plex Mono, monospace','font-size':11,fill:'var(--muted)'},r[0]);
+        mk(svg,'line',{x1:L,x2:W-R,y1:yb,y2:yb,stroke:'var(--grid)','stroke-width':1});
+        var pts=dk.rows[r[0]]||[[d0,1]];
+        var full=[[d0,pts[0][1]]].concat(pts).concat([[d1,pts[pts.length-1][1]]]);
+        var dpath='M'+x(d0)+' '+yb;
+        full.forEach(function(p){var bb=Math.max(d0,Math.min(d1,p[0]));dpath+=' L'+x(bb).toFixed(1)+' '+(yb-p[1]*rowH).toFixed(1);});
+        dpath+=' L'+x(d1)+' '+yb+' Z';
+        mk(svg,'path',{d:dpath,fill:r[1],'fill-opacity':.22,stroke:'none'});
+        var lp='';full.forEach(function(p,i){var bb=Math.max(d0,Math.min(d1,p[0]));lp+=(i?' L':'M')+x(bb).toFixed(1)+' '+(yb-p[1]*rowH).toFixed(1);});
+        mk(svg,'path',{d:lp,fill:'none',stroke:r[1],'stroke-width':1.8,'stroke-linejoin':'round'});
+      });
+      var fy=top+4*(rowH+gap)+12;
+      (dk.fx||[]).forEach(function(f){
+        mk(svg,'text',{x:x(f.at)+2,y:fy,'font-family':'Instrument Sans, sans-serif','font-size':11.5,fill:'var(--muted)'},f.text);
+      });
+      y0=top+4*(rowH+gap)+22+deckGap;
+    });
+  }
+
+  // ----- Clip A reference
+  lanes('lanesA',{domain:[-1,9],win:[0,8],marks:[{at:8,label:'I KNOW? drops · The Hills ends'}],decks:[
+    {name:'The Hills',rows:{Vol:[[8,1],[8,0]],Low:[[-1,1]],Mid:[[-1,1]],High:[[0,1],[0,0],[4,1]]},fx:[{at:0,text:'beatless outro · plays to its own end'}]},
+    {name:'I KNOW?',rows:{Vol:[[0,0],[0,1]],Low:[[0,0],[0,1]],Mid:[[0,0],[0,1]],High:[[0,0],[0,1]]},fx:[{at:0,text:'untouched · slowed 118 → 113.9 and held'}]}
+  ]});
+  // ----- Clip A v2 intro wash
+  lanes('lanesA2',{domain:[-1,10],win:[0,10],marks:[{at:8,label:'drop'}],decks:[
+    {name:'The Hills',rows:{Vol:[[8,1],[8,0]],Low:[[4,1]].concat(ease(4,7.75,1,.35)).concat([[8,.35],[8,0]]),Mid:[[8,1],[8,0]],High:[[8,1],[8,0]]},fx:[{at:0,text:'HPF rises to .62 · echo throw on bar 8, rings to bar 10 at 113 BPM'}]},
+    {name:'I KNOW?',rows:{Vol:[[0,0],[0,1]],Low:[[0,0],[7,0],[8,.5],[8,1]],Mid:[[0,0]].concat(ease(0,4.8,0,.7)).concat([[8,.7],[8,1]]),High:[[0,0]].concat(ease(0,4.8,0,.7)).concat([[8,.7],[8,1]])},fx:[{at:0,text:'LPF .62 (muffled) until bar 7 · native 118 BPM over 113'}]}
+  ]});
+  // ----- Clip B reference
+  lanes('lanesB',{domain:[-1,9],win:[0,8],marks:[{at:4,label:'Starships out · full low end'}],decks:[
+    {name:'Starships',rows:{Vol:[[3.5,1],[4,0]],Low:[[0,1],[0,0]],Mid:[[4,1],[4,0]],High:[[0,1],[0,0],[4,.3],[4,0]]},fx:[{at:0,text:'low and highs cut on bar 0 · faded over the half bar before 4'}]},
+    {name:'One More Time',rows:{Vol:[[0,0],[0,1]],Low:[[0,0],[3.9,1]],Mid:[[0,0],[0,.4]].concat(ease(0,4,.4,1)),High:[[0,0],[0,1]]},fx:[{at:0,text:'full volume from bar 0 · low ramps in · slowed 126 → 125 and held'}]}
+  ]});
+  // ----- Clip B v2 bass swap
+  lanes('lanesB2',{domain:[-1,9],win:[0,8],marks:[{at:4,label:'instant bass swap + random fill'}],decks:[
+    {name:'Starships',rows:{Vol:[[7.5,1],[8,0]],Low:[[4,1],[4,0]],Mid:[[8,1],[8,0]],High:[[3,1],[4,.45],[8,.45],[8,0]]},fx:[{at:0,text:'sped up 0.8% for the whole mix'},{at:4.1,text:'HPF to .7 · mids linger'}]},
+    {name:'One More Time',rows:{Vol:[[0,0],[0,1]],Low:[[0,0],[4,0],[4,1]],Mid:[[0,0],[0,.7],[4,.7],[4,1]],High:[[0,0],[1,.85],[4,.85],[4,1]]},fx:[{at:0,text:'HPF .42 until bar 3, open on 4'}]}
+  ]});
+  // ----- Proposed
+  lanes('lanesP1',{domain:[-1,9],win:[0,8],marks:[{at:8,label:'L: incoming first full bar = outgoing last bar'}],decks:[
+    {name:'Outgoing',rows:{Vol:[[8,1],[8,0]],Low:[[8,1],[8,0]],Mid:[[8,1],[8,0]],High:[[0,1],[0,0],[4,1],[8,1],[8,0]]},fx:[{at:0,text:'highs dip and recover by L/2 · no tail'}]},
+    {name:'Incoming',rows:{Vol:[[0,0],[0,1]],Low:[[0,0],[0,1]],Mid:[[0,0],[0,1]],High:[[0,0],[0,1]]},fx:[{at:0,text:'untouched · conformed to outgoing tempo'}]}
+  ]});
+  lanes('lanesP2',{domain:[-1,9],win:[0,8],marks:[{at:4,label:'L/2: phrase line + incoming first full bar'}],decks:[
+    {name:'Outgoing',rows:{Vol:[[3.5,1],[4,0]],Low:[[0,1],[0,0]],Mid:[[4,1],[4,0]],High:[[0,1],[0,0]]},fx:[{at:0,text:'mids only, out over the half bar before L/2'}]},
+    {name:'Incoming',rows:{Vol:[[0,0],[0,1]],Low:[[0,0],[4,1]],Mid:[[0,0],[0,.4]].concat(ease(0,4,.4,1)),High:[[0,0],[0,1]]},fx:[{at:0,text:'full volume · low ramps linearly · alone from L/2'}]}
+  ]});
+
+  // ----- energy charts
+  function energy(id,start,series,marks){
+    var svg=document.getElementById(id); if(!svg) return;
+    var W=900,H=260,L=56,R=16,T=18,B=34, d0=-1.5,d1=9.5, ymin=-60;
+    var x=function(b){return L+(b-d0)/(d1-d0)*(W-L-R);}, y=function(v){return T+(Math.max(ymin,Math.min(0,v))/ymin)*(H-T-B);};
+    mk(svg,'rect',{x:x(0),y:T,width:x(8)-x(0),height:H-T-B,fill:'var(--win)'});
+    [0,-20,-40,-60].forEach(function(v){mk(svg,'line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:'var(--grid)'});mk(svg,'text',{x:L-8,y:y(v)+4,'text-anchor':'end','font-family':'IBM Plex Mono, monospace','font-size':11,fill:'var(--muted)'},v+' dB');});
+    for(var b=-1;b<=9;b++) mk(svg,'text',{x:x(b),y:H-12,'text-anchor':'middle','font-family':'IBM Plex Mono, monospace','font-size':11,fill:'var(--muted)'},'bar '+b);
+    (marks||[]).forEach(function(m){mk(svg,'line',{x1:x(m.at),x2:x(m.at),y1:T,y2:H-B,stroke:'var(--accent)','stroke-width':1.6,'stroke-dasharray':'4 3'});mk(svg,'text',{x:x(m.at)+5,y:T+12,'font-family':'IBM Plex Mono, monospace','font-size':11,fill:'var(--accent)'},m.label);});
+    series.forEach(function(s){
+      var d='';s.v.forEach(function(v,i){var bb=start+i*.5+.25;d+=(i?' L':'M')+x(bb).toFixed(1)+' '+y(v).toFixed(1);});
+      mk(svg,'path',{d:d,fill:'none',stroke:s.c,'stroke-width':2,'stroke-linejoin':'round'});
+      s.v.forEach(function(v,i){var bb=start+i*.5+.25; if(i===s.v.length-1) mk(svg,'circle',{cx:x(bb),cy:y(v),r:3,fill:s.c});});
+    });
+  }
+  energy('energyA',-1.13,[
+    {c:'var(--low)',v:[-1.3,-39.0,-63.3,-65.5,-67.5,-71.3,-64.7,-73.9,-68.6,-76.1,-62.8,-71.5,-71.5,-66.5,-64.7,-78.5,-68.3,-64.4,-24.0,-23.3,-28.2]},
+    {c:'var(--vol)',v:[0.8,-19.9,-25.2,-21.6,-23.0,-24.2,-17.1,-19.0,-19.8,-21.3,-18.9,-20.6,-20.6,-21.0,-16.7,-19.7,-21.3,-20.6,-7.2,-8.0,-6.4]},
+    {c:'var(--mid)',v:[-1.2,-4.1,-4.7,-4.1,-9.9,-10.8,-7.7,-7.7,-12.9,-10.5,-9.3,-10.0,-13.4,-16.0,-12.1,-14.3,-16.3,-9.3,-14.5,-19.5,-13.5]},
+    {c:'var(--high)',v:[-5.3,-8.6,-22.0,-24.4,-30.6,-33.2,-35.4,-26.3,-17.7,-16.2,-16.4,-20.2,-26.2,-32.1,-25.9,-24.3,-22.9,-15.3,-22.7,-21.0,-6.7]}
+  ],[{at:8,label:'drop'}]);
+  energy('energyB',-1.40,[
+    {c:'var(--low)',v:[-31.8,-33.8,-39.9,-71.0,-62.0,-55.0,-49.0,-44.7,-44.9,-41.6,-35.3,-13.8,-13.8,-13.6,-14.3,-13.7,-13.7,-13.1,-13.9,-12.1,-12.1,-11.5]},
+    {c:'var(--vol)',v:[-21.4,-27.2,-26.9,-32.4,-29.6,-25.4,-18.1,-15.4,-13.9,-12.4,-11.6,-13.5,-13.2,-12.9,-11.1,-13.2,-12.9,-12.8,-10.8,-11.4,-11.5,-11.2]},
+    {c:'var(--mid)',v:[-1.6,-8.3,-9.9,-3.1,-2.1,-1.8,-2.0,-2.2,-2.7,-2.2,-4.5,-7.7,-8.9,-9.7,-9.4,-9.4,-9.7,-10.2,-9.0,-8.7,-9.2,-10.1]},
+    {c:'var(--high)',v:[-10.7,-8.9,-8.0,-7.7,-7.5,-7.2,-3.4,-2.1,-2.7,-3.2,-3.4,-6.2,-6.8,-6.9,-6.6,-6.7,-6.9,-7.1,-6.3,-6.8,-6.8,-7.2]}
+  ],[{at:0,label:'low cut'},{at:4,label:'handoff'}]);
+
+  // ----- mini lanes in the phone (light-on-dark, fixed colours)
+  (function(){
+    var svg=document.getElementById('miniA'); if(!svg) return;
+    var W=260,x=function(b){return 30+b/8*(W-36);};
+    var rows=[['out vol',[[0,1],[8,1]],'#F6EFF7',8],['out high',[[0,0],[4,1],[8,1]],'#F2B84B',36],['in vol',[[0,1],[8,1]],'#FFC1FF',64],['in low',[[0,1],[8,1]],'#9C8BFF',92]];
+    for(var b=0;b<=8;b++) mk(svg,'line',{x1:x(b),x2:x(b),y1:2,y2:112,stroke:'rgba(255,255,255,'+(b%4===0?.18:.07)+')'});
+    rows.forEach(function(r){
+      var yb=r[3]+20,d='M'+x(0)+' '+yb;
+      r[1].forEach(function(p){d+=' L'+x(p[0])+' '+(yb-p[1]*16);}); d+=' L'+x(8)+' '+yb+' Z';
+      mk(svg,'path',{d:d,fill:r[2],'fill-opacity':.25});
+      var l='';r[1].forEach(function(p,i){l+=(i?' L':'M')+x(p[0])+' '+(yb-p[1]*16);});
+      mk(svg,'path',{d:l,fill:'none',stroke:r[2],'stroke-width':1.5});
+      mk(svg,'text',{x:0,y:yb-4,'font-family':'IBM Plex Mono, monospace','font-size':7.5,fill:'rgba(246,239,247,.6)'},r[0]);
+    });
+    mk(svg,'line',{x1:x(8),x2:x(8),y1:2,y2:112,stroke:'#EE44FF','stroke-width':1.5,'stroke-dasharray':'3 2'});
+    mk(svg,'line',{x1:x(3),x2:x(3),y1:2,y2:112,stroke:'#fff','stroke-width':1.5});
+  })();
+})();
+</script>

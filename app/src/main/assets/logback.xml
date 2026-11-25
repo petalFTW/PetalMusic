@@ -1,0 +1,9 @@
+<configuration>
+    <appender name="logcat" class="ch.qos.logback.classic.android.LogcatAppender">
+        <tagEncoder><pattern>Librespot</pattern></tagEncoder>
+        <encoder><pattern>%logger{36}: %msg%n%ex</pattern></encoder>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="logcat" />
+    </root>
+</configuration>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Downbeat Tapper</title>
+<style>
+:root{--bg:#fff;--fg:#1d1b20;--mut:#625b71;--acc:#7a3fb0;--line:#ddd}
+@media (prefers-color-scheme:dark){:root{--bg:#141218;--fg:#e6e0e9;--mut:#cac4d0;--acc:#d0bcff;--line:#333}}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;max-width:760px;margin:0 auto;padding:16px}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.big{font-size:22px;padding:24px;width:100%;margin:12px 0;border-color:var(--acc)}
+textarea{width:100%;height:160px;font:13px ui-monospace,monospace;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:8px}
+small{color:var(--mut)}
+</style></head><body>
+<h1>Downbeat tapper</h1>
+<p>Ground truth for the AutoMix bar-phase check. Load a song, press play, and tap <b>Space</b> (or the button) on every <b>beat 1</b>, the "one" of the bar, for at least 8 bars. The page fits a straight line through your taps, so a few early or late taps are fine.</p>
+<p><input type="file" id="file" accept="audio/*"> <button id="play">Play / pause</button> <button id="reset">Clear taps</button></p>
+<button class="big" id="tap">Tap beat 1 (Space)</button>
+<p id="status"><small>No song loaded.</small></p>
+<p><small>Each finished song adds a line: <code>name ⇥ first downbeat (s) ⇥ bar length (s) ⇥ taps</code>. Paste all lines into <code>tools/automix-bench/downbeats/labels.tsv</code>. The name must match the file name in <code>songs/</code> without its extension.</small></p>
+<button id="add">Add this song</button>
+<textarea id="out" spellcheck="false"></textarea>
+<script>
+const a = new Audio(); let name = ""; let taps = [];
+const st = document.getElementById("status"), out = document.getElementById("out");
+try { out.value = localStorage.getItem("downbeat-labels") || ""; } catch (e) {}
+document.getElementById("file").onchange = e => { const f = e.target.files[0]; if (!f) return;
+  a.src = URL.createObjectURL(f); name = f.name.replace(/\.[^.]+$/, ""); taps = []; show(); };
+document.getElementById("play").onclick = () => a.paused ? a.play() : a.pause();
+document.getElementById("reset").onclick = () => { taps = []; show(); };
+const tap = () => { if (!a.paused) { taps.push(a.currentTime); show(); } };
+document.getElementById("tap").onclick = tap;
+addEventListener("keydown", e => { if (e.code === "Space") { e.preventDefault(); tap(); } });
+function fit() {
+  if (taps.length < 4) return null;
+  const d = taps.slice(1).map((t, i) => t - taps[i]).sort((x, y) => x - y);
+  const bar0 = d[d.length >> 1];
+  // Index each tap by bar number (skipped bars allowed), then least squares t = t0 + k·bar.
+  const k = taps.map(t => Math.round((t - taps[0]) / bar0));
+  const n = k.length, sk = k.reduce((s, x) => s + x, 0), st2 = taps.reduce((s, x) => s + x, 0);
+  const skk = k.reduce((s, x) => s + x * x, 0), skt = k.reduce((s, x, i) => s + x * taps[i], 0);
+  const bar = (n * skt - sk * st2) / (n * skk - sk * sk), t0 = (st2 - bar * sk) / n;
+  const first = ((t0 % bar) + bar) % bar;
+  const rms = Math.sqrt(taps.reduce((s, t, i) => s + (t - t0 - k[i] * bar) ** 2, 0) / n);
+  return { first, bar, rms };
+}
+function show() {
+  const f = fit();
+  st.innerHTML = name ? `<b>${name}</b>: ${taps.length} taps` + (f ? ` · bar ${f.bar.toFixed(3)} s (${(240 / f.bar).toFixed(2)} BPM) · first downbeat ${f.first.toFixed(3)} s · spread ${(f.rms * 1000).toFixed(0)} ms` : "") : "<small>No song loaded.</small>";
+}
+document.getElementById("add").onclick = () => { const f = fit(); if (!f || !name) return;
+  out.value += `${name}\t${f.first.toFixed(4)}\t${f.bar.toFixed(5)}\t${taps.length}\n`;
+  try { localStorage.setItem("downbeat-labels", out.value); } catch (e) {} };
+out.oninput = () => { try { localStorage.setItem("downbeat-labels", out.value); } catch (e) {} };
+</script></body></html>
